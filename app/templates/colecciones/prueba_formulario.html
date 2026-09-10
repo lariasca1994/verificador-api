@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block titulo %}Nueva prueba — {{ coleccion.nombre }}{% endblock %}
+{% block contenido %}
+<div class="max-w-lg mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-8">
+    <h1 class="text-xl font-bold mb-1">Nueva prueba</h1>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">en {{ coleccion.nombre }}</p>
+    <form method="post" action="/colecciones/{{ coleccion.id }}/pruebas/nueva" class="space-y-4">
+        <div>
+            <label class="block text-sm font-medium mb-1">Nombre</label>
+            <input type="text" name="nombre" required placeholder="Ej. Listar casas"
+                   class="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pg" />
+        </div>
+        <div class="flex gap-3">
+            <div class="w-32">
+                <label class="block text-sm font-medium mb-1">Método</label>
+                <select name="metodo" class="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pg">
+                    <option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option>
+                </select>
+            </div>
+            <div class="flex-1">
+                <label class="block text-sm font-medium mb-1">Ruta o URL</label>
+                <input type="text" name="ruta" required placeholder="/house o https://..."
+                       class="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pg" />
+            </div>
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1">Headers (JSON, opcional)</label>
+            <textarea name="headers_json" rows="2" placeholder='{"Authorization": "Bearer ..."}'
+                      class="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-pg"></textarea>
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1">Body (JSON, opcional)</label>
+            <textarea name="body_json" rows="3" placeholder='{"email": "..."}'
+                      class="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-pg"></textarea>
+        </div>
+        <div class="flex gap-3">
+            <div class="w-40">
+                <label class="block text-sm font-medium mb-1">Status esperado</label>
+                <input type="number" name="status_esperado" placeholder="200"
+                       class="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pg" />
+            </div>
+            <div class="flex-1">
+                <label class="block text-sm font-medium mb-1">La respuesta debe contener (opcional)</label>
+                <input type="text" name="contiene_esperado" placeholder='"address"'
+                       class="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pg" />
+            </div>
+        </div>
+        <button type="submit" class="bg-pg hover:bg-pg-dark text-white font-semibold rounded px-4 py-2">Guardar prueba</button>
+    </form>
+</div>
+{% endblock %}

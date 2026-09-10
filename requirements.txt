@@ -1,0 +1,16 @@
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+sqlalchemy==2.0.36
+psycopg2-binary==2.9.10
+python-dotenv==1.0.1
+jinja2==3.1.4
+python-multipart==0.0.19
+passlib[bcrypt]==1.7.4
+# Pin explícito: passlib 1.7.4 (sin actualizar desde 2020) lee un atributo
+# interno de bcrypt ("bcrypt.__about__.__version__") que las versiones
+# 4.1+ de la librería bcrypt eliminaron. Sin este pin, cada hash/verify
+# imprime "(trapped) error reading bcrypt version" — inofensivo por sí
+# solo, pero ruidoso y señal de una combinación no soportada.
+bcrypt==4.0.1
+pyjwt==2.10.1
+requests==2.32.3

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block titulo %}Mis colecciones — Verificador API{% endblock %}
+{% block contenido %}
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">{% if usuario.es_admin %}Todas las colecciones{% else %}Mis colecciones{% endif %}</h1>
+    <a href="/colecciones/nueva" class="bg-pg hover:bg-pg-dark text-white text-sm font-semibold rounded px-4 py-2">+ Nueva colección</a>
+</div>
+
+{% if not colecciones %}
+<p class="text-slate-500 dark:text-slate-400">Todavía no hay colecciones{% if not usuario.es_admin %}. Crea la primera para empezar a definir pruebas{% endif %}.</p>
+{% else %}
+<div class="grid sm:grid-cols-2 gap-4">
+    {% for c in colecciones %}
+    <a href="/colecciones/{{ c.id }}" class="block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-5 hover:border-pg dark:hover:border-pg transition-colors">
+        <h2 class="font-semibold mb-1">{{ c.nombre }}</h2>
+        {% if c.descripcion %}<p class="text-sm text-slate-600 dark:text-slate-400 mb-2">{{ c.descripcion }}</p>{% endif %}
+        <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-500">
+            <span>{{ c.pruebas|length }} prueba(s)</span>
+            {% if usuario.es_admin %}<span>Dueño: {{ c.propietario.nombre }}</span>{% endif %}
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

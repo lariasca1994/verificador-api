@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block titulo %}{{ coleccion.nombre }} — Verificador API{% endblock %}
+{% block contenido %}
+<div class="flex items-start justify-between mb-2">
+    <div>
+        <h1 class="text-2xl font-bold">{{ coleccion.nombre }}</h1>
+        {% if coleccion.descripcion %}<p class="text-slate-600 dark:text-slate-400 mt-1">{{ coleccion.descripcion }}</p>{% endif %}
+        {% if coleccion.url_base %}<p class="text-xs text-slate-500 dark:text-slate-500 mt-1 font-mono">{{ coleccion.url_base }}</p>{% endif %}
+        {% if not es_propia %}<span class="inline-block mt-2 text-xs uppercase tracking-wide bg-slate-200 dark:bg-slate-800 rounded-full px-2 py-0.5">Vista de solo lectura (admin)</span>{% endif %}
+    </div>
+    {% if es_propia %}
+    <form method="post" action="/colecciones/{{ coleccion.id }}/ejecutar">
+        <button type="submit" class="bg-pg hover:bg-pg-dark text-white font-semibold rounded px-4 py-2 text-sm">▶ Ejecutar todo</button>
+    </form>
+    {% endif %}
+</div>
+
+<div class="flex items-center justify-between mt-8 mb-3">
+    <h2 class="font-semibold">Pruebas ({{ coleccion.pruebas|length }})</h2>
+    {% if es_propia %}<a href="/colecciones/{{ coleccion.id }}/pruebas/nueva" class="text-sm text-pg dark:text-pg-light hover:underline">+ Agregar prueba</a>{% endif %}
+</div>
+
+{% if not coleccion.pruebas %}
+<p class="text-slate-500 dark:text-slate-400 text-sm">Sin pruebas todavía.</p>
+{% else %}
+<div class="overflow-x-auto">
+<table class="w-full text-sm border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
+    <thead class="bg-slate-100 dark:bg-slate-800">
+        <tr>
+            <th class="text-left px-3 py-2">Nombre</th>
+            <th class="text-left px-3 py-2">Método</th>
+            <th class="text-left px-3 py-2">Ruta</th>
+            <th class="text-left px-3 py-2">Status esperado</th>
+            {% if es_propia %}<th class="px-3 py-2"></th>{% endif %}
+        </tr>
+    </thead>
+    <tbody class="bg-white dark:bg-slate-900">
+        {% for p in coleccion.pruebas %}
+        <tr class="border-t border-slate-100 dark:border-slate-800">
+            <td class="px-3 py-2">{{ p.nombre }}</td>
+            <td class="px-3 py-2 font-mono">{{ p.metodo }}</td>
+            <td class="px-3 py-2 font-mono">{{ p.ruta }}</td>
+            <td class="px-3 py-2">{{ p.status_esperado or "—" }}</td>
+            {% if es_propia %}
+            <td class="px-3 py-2 text-right">
+                <form method="post" action="/colecciones/{{ coleccion.id }}/pruebas/{{ p.id }}/borrar">
+                    <button type="submit" class="text-rose-500 hover:underline text-xs">Borrar</button>
+                </form>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endif %}
+
+<h2 class="font-semibold mt-10 mb-3">Ejecuciones recientes</h2>
+{% if not ejecuciones %}
+<p class="text-slate-500 dark:text-slate-400 text-sm">Sin ejecuciones todavía.</p>
+{% else %}
+<div class="space-y-2">
+    {% for e in ejecuciones %}
+    <a href="/ejecuciones/{{ e.id }}" class="flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-3 hover:border-pg dark:hover:border-pg">
+        <span class="text-sm text-slate-600 dark:text-slate-400">{{ e.fecha.strftime("%Y-%m-%d %H:%M") }}</span>
+        <span class="text-sm">
+            <span class="text-emerald-600 dark:text-emerald-400 font-semibold">{{ e.exitosas }} ok</span>
+            {% if e.fallidas %} · <span class="text-rose-600 dark:text-rose-400 font-semibold">{{ e.fallidas }} falló</span>{% endif %}
+            <span class="text-slate-400"> / {{ e.total }}</span>
+        </span>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block titulo %}Ejecución — {{ coleccion.nombre }}{% endblock %}
+{% block contenido %}
+<a href="/colecciones/{{ coleccion.id }}" class="text-sm text-pg dark:text-pg-light hover:underline">← {{ coleccion.nombre }}</a>
+
+<h1 class="text-2xl font-bold mt-2 mb-1">Ejecución del {{ ejecucion.fecha.strftime("%Y-%m-%d %H:%M") }}</h1>
+<p class="text-slate-600 dark:text-slate-400 mb-6">
+    <span class="text-emerald-600 dark:text-emerald-400 font-semibold">{{ ejecucion.exitosas }} exitosas</span> ·
+    <span class="text-rose-600 dark:text-rose-400 font-semibold">{{ ejecucion.fallidas }} fallidas</span> ·
+    {{ ejecucion.total }} en total
+</p>
+
+<div class="space-y-3">
+    {% for r in ejecucion.resultados %}
+    <div class="bg-white dark:bg-slate-900 border {% if r.paso %}border-emerald-200 dark:border-emerald-900{% else %}border-rose-200 dark:border-rose-900{% endif %} rounded-lg p-4">
+        <div class="flex items-center justify-between">
+            <span class="font-medium">{{ "✅" if r.paso else "❌" }} {{ r.nombre_prueba }}</span>
+            <span class="text-xs text-slate-500 dark:text-slate-500">
+                {% if r.status_obtenido %}status {{ r.status_obtenido }} · {% endif %}
+                {% if r.tiempo_ms %}{{ "%.0f"|format(r.tiempo_ms) }} ms{% endif %}
+            </span>
+        </div>
+        {% if r.detalle_error %}
+        <p class="text-sm text-rose-600 dark:text-rose-400 mt-1">{{ r.detalle_error }}</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

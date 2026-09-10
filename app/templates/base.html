@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block titulo %}Verificador API{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // PostgreSQL usa el azul "elefante" (#336791) como color de marca —
+        // se define aquí como acento de todo el sitio, para que a simple
+        // vista se entienda a qué motor de base de datos se conecta este
+        // proyecto (Azure SQL = azul Microsoft en reservas-corferias,
+        // MongoDB = verde esmeralda en ColombiaTech2/gestor-casos-qa,
+        // PostgreSQL = este azul en verificador-api).
+        tailwind.config = {
+            darkMode: ['selector', '[data-tema="oscuro"]'],
+            theme: {
+                extend: {
+                    colors: {
+                        pg: { DEFAULT: '#336791', dark: '#2b5679', light: '#4d84ad' },
+                    },
+                },
+            },
+        };
+    </script>
+    <script>
+        // Aplica el tema guardado ANTES de pintar la página, para evitar
+        // el parpadeo de claro -> oscuro en la primera carga.
+        (function () {
+            try {
+                var guardado = localStorage.getItem('verificador-tema');
+                if (guardado === 'oscuro' || guardado === 'claro') {
+                    document.documentElement.setAttribute('data-tema', guardado);
+                }
+            } catch (e) {}
+        })();
+    </script>
+</head>
+<body class="min-h-full bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 antialiased">
+    <nav class="bg-pg dark:bg-slate-900 text-white px-6 py-3 flex items-center justify-between">
+        <a href="/" class="font-semibold flex items-center gap-2">
+            🐘 Verificador API
+        </a>
+        <div class="flex items-center gap-5 text-sm">
+            {% if usuario %}
+                <a href="/colecciones" class="hover:text-pg-light">Mis colecciones</a>
+                {% if usuario.es_admin %}
+                    <span class="text-xs uppercase tracking-wide bg-white/15 rounded-full px-2 py-0.5">Admin · solo lectura</span>
+                {% endif %}
+                <form action="/logout" method="post" class="inline">
+                    <button type="submit" class="hover:text-pg-light">Salir</button>
+                </form>
+            {% else %}
+                <a href="/login" class="hover:text-pg-light">Iniciar sesión</a>
+                <a href="/registro" class="hover:text-pg-light">Crear cuenta</a>
+            {% endif %}
+            <button
+                type="button"
+                id="alternar-tema"
+                class="boton-tema text-lg leading-none rounded-full w-8 h-8 flex items-center justify-center border border-white/30 hover:bg-white/10"
+                aria-label="Alternar tema claro/oscuro"
+                title="Alternar tema claro/oscuro"
+            >🌙</button>
+        </div>
+    </nav>
+
+    <main class="{% if centrar %}min-h-[80vh] flex items-center justify-center px-6 py-12{% else %}max-w-5xl mx-auto px-6 py-10{% endif %}">
+        {% block contenido %}{% endblock %}
+    </main>
+
+    <script src="/static/js/tema.js" defer></script>
+</body>
+</html>

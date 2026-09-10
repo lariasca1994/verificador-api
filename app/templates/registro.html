@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block titulo %}Crear cuenta — Verificador API{% endblock %}
+{% block contenido %}
+<div class="w-full max-w-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm p-8">
+    <h1 class="text-xl font-bold mb-6 text-center">Crear cuenta</h1>
+    {% if error %}
+    <div class="bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-300 text-sm rounded px-3 py-2 mb-4">{{ error }}</div>
+    {% endif %}
+    <form method="post" action="/registro" class="space-y-4">
+        <div>
+            <label class="block text-sm font-medium mb-1">Nombre</label>
+            <input type="text" name="nombre" required
+                   class="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pg" />
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1">Correo</label>
+            <input type="email" name="email" required
+                   class="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pg" />
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1">Contraseña</label>
+            <input type="password" name="password" required minlength="8"
+                   class="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pg" />
+        </div>
+        <button type="submit" class="w-full bg-pg hover:bg-pg-dark text-white font-semibold rounded py-2">Crear cuenta</button>
+    </form>
+    <p class="text-sm text-slate-500 dark:text-slate-400 text-center mt-4">
+        ¿Ya tienes cuenta? <a href="/login" class="text-pg dark:text-pg-light hover:underline">Inicia sesión</a>
+    </p>
+</div>
+{% endblock %}

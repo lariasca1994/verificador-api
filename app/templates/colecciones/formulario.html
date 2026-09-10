@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block titulo %}Nueva colección — Verificador API{% endblock %}
+{% block contenido %}
+<div class="max-w-lg mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-8">
+    <h1 class="text-xl font-bold mb-6">Nueva colección</h1>
+    <form method="post" action="/colecciones/nueva" class="space-y-4">
+        <div>
+            <label class="block text-sm font-medium mb-1">Nombre</label>
+            <input type="text" name="nombre" required placeholder="Ej. API de reservas-corferias"
+                   class="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pg" />
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1">Descripción (opcional)</label>
+            <textarea name="descripcion" rows="2"
+                      class="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pg"></textarea>
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1">URL base (opcional)</label>
+            <input type="text" name="url_base" placeholder="https://mi-api.onrender.com"
+                   class="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pg" />
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Se antepone a las rutas relativas de cada prueba (ej. <code>/house</code>).</p>
+        </div>
+        <button type="submit" class="bg-pg hover:bg-pg-dark text-white font-semibold rounded px-4 py-2">Crear</button>
+    </form>
+</div>
+{% endblock %}
