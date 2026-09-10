@@ -2,3 +2,4 @@
 .venv/
 __pycache__/
 *.pyc
+crear_admin.py
