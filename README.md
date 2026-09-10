@@ -65,8 +65,6 @@ app/
 ├── ejecutor.py            Corre las pruebas de una colección con requests
 ├── routers/               web (inicio), auth, colecciones, ejecuciones
 └── templates/             Jinja2 + Tailwind, tema claro/oscuro
-scripts/
-└── crear_admin.py        Cuenta de revisión ariascluisf@proton.me
 ```
 
 ## Rol admin
