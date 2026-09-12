@@ -3,3 +3,11 @@
 __pycache__/
 *.pyc
 crear_admin.py
+
+# Variables de entorno reales para el despliegue en AWS Lambda: incluyen
+# la cadena de conexión de Neon y el JWT_SECRET, nunca se suben.
+aws-deploy/env-vars.json
+
+# Paquete temporal armado para el despliegue en AWS Lambda
+package/
+verificador-api-lambda.zip
