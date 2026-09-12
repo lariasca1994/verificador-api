@@ -1,0 +1,7 @@
+{
+  "Variables": {
+    "DATABASE_URL": "postgresql://usuario:password@ep-xxxxx-pooler.us-east-2.aws.neon.tech/verificador_api?sslmode=require",
+    "JWT_SECRET": "cambia-esto-por-una-cadena-larga-y-aleatoria",
+    "CLIENT_URL": "https://TU_URL_DE_LAMBDA.lambda-url.us-east-1.on.aws"
+  }
+}
