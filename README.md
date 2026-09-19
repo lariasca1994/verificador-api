@@ -1,12 +1,19 @@
 # Verificador API
 
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-D71F00?style=flat&logo=sqlalchemy&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
+
 Herramienta de automatización de pruebas de API: define colecciones de
 verificaciones (método, URL, headers, body, status y contenido
 esperados) y ejecútalas con un clic, con historial de resultados y
 tiempos de respuesta — una versión propia y simplificada de lo que hace
 Postman/Newman.
 
-`FastAPI` · `SQLAlchemy` · `PostgreSQL (Neon)` · `JWT` · `Tailwind CSS`
+## Demo en vivo
+
+**Aplicación:** [eofvlnitsiuodup4eywdcenxwu0adgbz.lambda-url.us-east-1.on.aws](https://eofvlnitsiuodup4eywdcenxwu0adgbz.lambda-url.us-east-1.on.aws/)
 
 ## Cómo se conecta a la base de datos
 
@@ -73,3 +80,13 @@ Existe un único rol adicional (`admin`) pensado para revisar el
 proyecto: puede ver las colecciones, pruebas y ejecuciones de **todos**
 los usuarios, pero no puede crear, editar, borrar ni ejecutar nada que
 no sea suyo — es una vista de solo lectura sobre el resto.
+
+## Despliegue
+
+La instancia pública corre en AWS Lambda (Function URL, sin API Gateway),
+con PostgreSQL en Neon como base de datos.
+
+## Autor
+
+**Luis Felipe Arias Carriazo**
+[GitHub](https://github.com/lariasca1994) · [LinkedIn](https://linkedin.com/in/lfac1)
