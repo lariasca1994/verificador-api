@@ -177,13 +177,6 @@ app/
 └── templates/             Jinja2 + Tailwind, tema claro/oscuro
 ```
 
-## Rol admin
-
-Existe un único rol adicional (`admin`) pensado para revisar el
-proyecto: puede ver las colecciones, pruebas y ejecuciones de **todos**
-los usuarios, pero no puede crear, editar, borrar ni ejecutar nada que
-no sea suyo — es una vista de solo lectura sobre el resto.
-
 ## Despliegue
 
 La instancia pública corre en AWS Lambda (Function URL, sin API Gateway),
