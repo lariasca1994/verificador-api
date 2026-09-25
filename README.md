@@ -54,12 +54,6 @@ propio. Las tablas se crean solas al arrancar (no usa Alembic todavía).
 uvicorn app.main:app --reload --port 8300
 ```
 
-Para crear la cuenta de revisión (rol admin, solo lectura sobre todo):
-
-```bash
-python -m scripts.crear_admin "TuPasswordAquí"
-```
-
 ## Diagrama de Arquitectura
 
 ```mermaid
