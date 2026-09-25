@@ -71,7 +71,13 @@ def usuario_opcional(request: Request, db: Session = Depends(obtener_db)) -> Usu
     usuario_id = _decodificar_token(token)
     if usuario_id is None:
         return None
-    return db.get(Usuario, usuario_id)
+    usuario = db.get(Usuario, usuario_id)
+    if usuario is not None and not usuario.activo:
+        # Cuenta suspendida por un admin: se trata igual que "no hay
+        # sesión" — el token puede seguir siendo válido, pero la cuenta
+        # ya no. Efecto inmediato porque acá se consulta la DB fresca.
+        return None
+    return usuario
 
 
 def usuario_actual(

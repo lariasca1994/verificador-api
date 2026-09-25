@@ -30,12 +30,12 @@ def obtener_coleccion_propia(
     db: Session = Depends(obtener_db),
     usuario: Usuario = Depends(usuario_actual),
 ) -> Coleccion:
-    """Para crear/editar/ejecutar: tiene que ser el dueño, sin excepción
-    para el admin — su rol es de solo lectura sobre lo ajeno."""
+    """Para crear/editar/ejecutar: tiene que ser el dueño, o el admin —
+    el admin puede gestionar (no solo mirar) colecciones ajenas."""
     coleccion = db.get(Coleccion, coleccion_id)
     if coleccion is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Colección no encontrada")
-    if coleccion.propietario_id != usuario.id:
+    if coleccion.propietario_id != usuario.id and not usuario.es_admin:
         raise HTTPException(
             status.HTTP_403_FORBIDDEN,
             "Solo el dueño de la colección puede modificarla o ejecutarla",

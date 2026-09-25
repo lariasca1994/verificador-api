@@ -6,7 +6,7 @@
         <h1 class="text-2xl font-bold">{{ coleccion.nombre }}</h1>
         {% if coleccion.descripcion %}<p class="text-slate-600 dark:text-slate-400 mt-1">{{ coleccion.descripcion }}</p>{% endif %}
         {% if coleccion.url_base %}<p class="text-xs text-slate-500 dark:text-slate-500 mt-1 font-mono">{{ coleccion.url_base }}</p>{% endif %}
-        {% if not es_propia %}<span class="inline-block mt-2 text-xs uppercase tracking-wide bg-slate-200 dark:bg-slate-800 rounded-full px-2 py-0.5">Vista de solo lectura (admin)</span>{% endif %}
+        {% if not es_dueno and usuario.es_admin %}<span class="inline-block mt-2 text-xs uppercase tracking-wide bg-slate-200 dark:bg-slate-800 rounded-full px-2 py-0.5">Gestionando como admin</span>{% endif %}
     </div>
     {% if es_propia %}
     <form method="post" action="/colecciones/{{ coleccion.id }}/ejecutar">

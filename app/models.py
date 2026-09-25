@@ -27,6 +27,11 @@ class Usuario(Base):
     # usuarios (de solo lectura) — no crea, edita ni ejecuta nada ajeno.
     # Cualquier otro valor ("usuario") solo ve y gestiona lo propio.
     rol = Column(String(20), nullable=False, default="usuario")
+    # Cuenta suspendida (activo=False) no puede iniciar ni mantener sesión —
+    # se trata como "no autenticado" en usuario_opcional, con efecto
+    # inmediato porque el JWT no lleva este dato (se resuelve contra la DB
+    # en cada request).
+    activo = Column(Boolean, default=True, nullable=False)
     creado_en = Column(DateTime, default=datetime.datetime.utcnow)
 
     colecciones = relationship("Coleccion", back_populates="propietario")

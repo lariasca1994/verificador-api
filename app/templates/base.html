@@ -45,7 +45,8 @@
             {% if usuario %}
                 <a href="/colecciones" class="hover:text-pg-light">Mis colecciones</a>
                 {% if usuario.es_admin %}
-                    <span class="text-xs uppercase tracking-wide bg-white/15 rounded-full px-2 py-0.5">Admin · solo lectura</span>
+                    <a href="/admin/usuarios" class="hover:text-pg-light">Usuarios</a>
+                    <span class="text-xs uppercase tracking-wide bg-white/15 rounded-full px-2 py-0.5">Admin</span>
                 {% endif %}
                 <form action="/logout" method="post" class="inline">
                     <button type="submit" class="hover:text-pg-light">Salir</button>
