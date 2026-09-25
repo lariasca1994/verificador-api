@@ -99,7 +99,7 @@ flowchart TB
 
     subgraph Neon["🗄️ Neon (PostgreSQL Serverless)"]
         DB[("Base de datos<br/>Usuarios · Colecciones · Pruebas<br/>Ejecuciones · ResultadosPrueba")]
-        Pool["pool_pre_ping=True<br/>Reconexión automática<br/>scale-to-zero")]
+        Pool["pool_pre_ping=True<br/>Reconexión automática<br/>scale-to-zero"]
     end
 
     subgraph Externos["🔌 APIs externas verificadas"]
