@@ -71,7 +71,11 @@ def detalle(
     coleccion: Coleccion = Depends(obtener_coleccion_visible),
     db: Session = Depends(obtener_db),
 ):
-    es_propia = coleccion.propietario_id == usuario.id
+    # "es_propia" en este template controla si se muestran los controles de
+    # gestión (agregar/borrar prueba, ejecutar) -- el admin ya puede usarlos
+    # (ver obtener_coleccion_propia en dependencias.py), así que también
+    # cuenta como tal acá, aunque no sea el dueño real.
+    es_propia = coleccion.propietario_id == usuario.id or usuario.es_admin
     ejecuciones = sorted(coleccion.ejecuciones, key=lambda e: e.fecha, reverse=True)[:10]
     return plantillas.TemplateResponse(
         request,
@@ -80,6 +84,7 @@ def detalle(
             "usuario": usuario,
             "coleccion": coleccion,
             "es_propia": es_propia,
+            "es_dueno": coleccion.propietario_id == usuario.id,
             "ejecuciones": ejecuciones,
         },
     )

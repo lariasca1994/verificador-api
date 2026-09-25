@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from app.database import Base, engine
-from app.routers import auth, colecciones, ejecuciones, web
+from app.routers import auth, colecciones, ejecuciones, usuarios, web
 
 # Sin Alembic por ahora, a propósito: para el tamaño de este proyecto,
 # crear las tablas que falten al arrancar (idempotente: no toca las que
@@ -18,3 +18,4 @@ app.include_router(web.router)
 app.include_router(auth.router)
 app.include_router(colecciones.router)
 app.include_router(ejecuciones.router)
+app.include_router(usuarios.router)
