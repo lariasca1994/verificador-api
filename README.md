@@ -60,7 +60,7 @@ Para crear la cuenta de revisión (rol admin, solo lectura sobre todo):
 python -m scripts.crear_admin "TuPasswordAquí"
 ```
 
-## Arquitectura
+## Diagrama de Arquitectura
 
 ```mermaid
 flowchart TB
