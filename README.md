@@ -31,7 +31,7 @@ Postman/Newman.
 
 ## Demo en vivo
 
-**Aplicación:** [eofvlnitsiuodup4eywdcenxwu0adgbz.lambda-url.us-east-1.on.aws](https://eofvlnitsiuodup4eywdcenxwu0adgbz.lambda-url.us-east-1.on.aws/)
+**Aplicación:** [abrir la demo en vivo](https://eofvlnitsiuodup4eywdcenxwu0adgbz.lambda-url.us-east-1.on.aws/)
 
 ## Cómo se conecta a la base de datos
 
