@@ -36,7 +36,7 @@ Postman/Newman.
 ## Cómo se conecta a la base de datos
 
 El proyecto usa PostgreSQL alojado en [Neon](https://neon.tech) (Postgres
-serverless, con plan gratuito). La conexión se resuelve en un solo lugar,
+serverless). La conexión se resuelve en un solo lugar,
 `app/database.py`, a partir de la variable `DATABASE_URL` del `.env`:
 
 ```python
@@ -49,7 +49,7 @@ Dos detalles importan por tratarse de Neon específicamente:
   Neon exige TLS y así te la entrega su panel (Dashboard → tu proyecto →
   *Connection Details* → *Connection string*, variante *Pooled
   connection*).
-- **`pool_pre_ping=True`** es necesario porque el plan gratuito de Neon
+- **`pool_pre_ping=True`** es necesario porque Neon
   "suspende" el cómputo tras un rato sin actividad (scale-to-zero). Sin
   esto, una conexión que quedó abierta antes de esa suspensión falla con
   un error confuso a mitad de un request en vez de renovarse sola.
@@ -85,7 +85,7 @@ uvicorn app.main:app --reload --port 8300
   compara el código de estado y el contenido con lo esperado.
 - **SQLAlchemy** guarda colecciones, pruebas y resultados en **PostgreSQL
   serverless de Neon**, por TLS y con `pool_pre_ping` para sobrevivir a la
-  suspensión del plan gratuito.
+  suspensión por inactividad.
 - **qa-evidencia** prueba la demo automáticamente dos veces al día.
 
 ## Estructura
