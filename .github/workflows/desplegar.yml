@@ -1,0 +1,65 @@
+# Despliegue continuo: cada push a main empaqueta la app y actualiza el
+# código de la función Lambda "verificador-api". Nada se despliega a mano.
+#
+# Autenticación: OIDC de GitHub -> rol IAM "verificador-api-github-deploy"
+# (sin llaves de AWS guardadas en GitHub). El rol solo acepta tokens de
+# ESTE repo y de la rama main, y solo puede actualizar esta función.
+# Única configuración en GitHub: la variable de repositorio AWS_ROLE_ARN.
+name: Desplegar en AWS Lambda
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'lambda_handler.py'
+      - 'requirements.txt'
+      - '.github/workflows/desplegar.yml'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: produccion
+  cancel-in-progress: false
+
+env:
+  FUNCION: verificador-api
+  AWS_REGION: us-east-1
+
+jobs:
+  desplegar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      # Mismo Python que el runtime de la función: las dependencias con
+      # partes compiladas (psycopg2, bcrypt, pydantic-core) deben coincidir.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Armar el paquete
+        run: |
+          mkdir -p paquete
+          pip install --quiet -r requirements.txt --target paquete
+          cp -r app lambda_handler.py paquete/
+          find paquete -name '__pycache__' -type d -prune -exec rm -rf {} +
+          cd paquete && zip -qr ../funcion.zip .
+          ls -lh ../funcion.zip
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Actualizar la función
+        run: |
+          aws lambda update-function-code \
+            --function-name "$FUNCION" \
+            --zip-file fileb://funcion.zip \
+            --query "LastModified" --output text
+          aws lambda wait function-updated --function-name "$FUNCION"
