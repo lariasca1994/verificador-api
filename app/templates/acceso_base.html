@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{# Portada común de ingreso y registro. Las hijas definen paso,
+   titulo_form, subtitulo, formulario y alterno. El error conserva la
+   clase bg-rose-50 y el botón de ingreso dice "Entrar": los usa la prueba
+   E2E de qa-evidencia. #}
+{% block cabeza %}<link rel="stylesheet" href="/static/acceso.css" />{% endblock %}
+{% block clase_body %}acceso{% endblock %}
+{% block cuerpo %}
+<div class="portada">
+    <main class="lado">
+        <div class="lado-barra">
+            <a href="/" class="logo"><img src="/static/iconos/icono.svg" alt="" />Verificador API</a>
+            <button type="button" id="alternar-tema" class="boton-tema text-lg leading-none rounded-full w-9 h-9 flex items-center justify-center border"
+                    aria-label="Alternar tema claro/oscuro" title="Alternar tema claro/oscuro">🌙</button>
+        </div>
+
+        <div class="lado-centro">
+            <section class="formulario-acceso" aria-labelledby="titulo-acceso">
+                <p class="paso">{% block paso %}{% endblock %}</p>
+                <h1 id="titulo-acceso" class="titulo-form">{% block titulo_form %}{% endblock %}</h1>
+                <p class="subtitulo">{% block subtitulo %}{% endblock %}</p>
+
+                {% if error %}
+                <div class="alerta bg-rose-50" role="alert">{{ error }}</div>
+                {% endif %}
+
+                {% block formulario %}{% endblock %}
+
+                <p class="alterno">{% block alterno %}{% endblock %}</p>
+            </section>
+        </div>
+
+        <p class="lado-pie">Proyecto de portafolio · FastAPI · PostgreSQL</p>
+    </main>
+
+    <aside class="marca">
+        <div>
+            <p class="marca-etiqueta">// verificación automática de APIs</p>
+            <h2 class="marca-titular">Tus endpoints, <span>verificados.</span></h2>
+            <p class="marca-bajada">
+                Agrupa pruebas HTTP en colecciones —método, ruta, cabeceras y
+                cuerpo— y comprueba en cada ejecución el código de estado y el
+                contenido de la respuesta. El historial queda guardado.
+            </p>
+        </div>
+
+        <div class="consola" aria-hidden="true">
+            <div class="peticion"><span class="metodo">GET</span><span>/api/pedidos/1042</span><span class="estado">200 OK · 84 ms</span></div>
+<pre class="respuesta">{
+  <span class="k">"id"</span>: <span class="n">1042</span>,
+  <span class="k">"estado"</span>: <span class="s">"despachado"</span>,
+  <span class="k">"total"</span>: <span class="n">189900</span>
+}</pre>
+            <ul class="aserciones">
+                <li style="--retraso: .5s">status == 200</li>
+                <li style="--retraso: 1s">body.estado existe</li>
+                <li style="--retraso: 1.5s">tiempo &lt; 500 ms</li>
+                <li class="resumen">3 de 3 aserciones correctas</li>
+            </ul>
+        </div>
+    </aside>
+</div>
+{% endblock %}
