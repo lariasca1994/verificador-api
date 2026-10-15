@@ -162,6 +162,14 @@ Dos detalles importan por tratarse de Neon específicamente:
    respuesta en milisegundos y, si falló, el motivo.
 3. **Ejecuciones recientes** guarda el historial de la colección como evidencia.
 
+### Si el servicio no responde
+
+Si la API o la base de datos (PostgreSQL en Neon) no responden, la aplicación muestra una **pantalla de mantenimiento** con los colores del proyecto, en lugar de un error genérico o de una página que no carga.
+
+- **Servidor:** Si Neon está suspendido, sin cuota o inalcanzable (`OperationalError`/`InterfaceError` de SQLAlchemy), cualquier página devuelve `app/templates/mantenimiento.html` con **503** y `Retry-After`. Crear las tablas al arrancar ya no tumba la Lambda si la base no responde.
+- **Pantalla:** Es una página independiente (no depende de la base ni de Tailwind por CDN) y respeta el tema guardado.
+- **Recuperación:** Se recarga sola cada 30 s; cuando la base vuelve aparece la página normal. No reintenta acciones del usuario, para no duplicarlas.
+
 ---
 
 ## 6. Instalación para pruebas
