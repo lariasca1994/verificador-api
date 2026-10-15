@@ -150,3 +150,5 @@ tu equipo (`localhost`) o en una red privada, el servidor de la demo no la alcan
 **¿Qué pasa si dejo vacío "La respuesta debe contener"?** La prueba solo compara el código HTTP.
 
 **¿Puedo ver las ejecuciones antiguas?** La colección muestra las 10 más recientes.
+
+**¿Qué significa la pantalla "Estamos en mantenimiento"?** El servicio o su base de datos no están respondiendo en ese momento. No se perdió nada: tus colecciones, pruebas y ejecuciones siguen guardados, y ninguna acción quedó a medias (si no viste la confirmación, no se guardó). La pantalla se actualiza sola y vuelve a la normalidad apenas el servicio responda; también puedes reintentar más tarde.
