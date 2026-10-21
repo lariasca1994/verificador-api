@@ -63,3 +63,20 @@ jobs:
             --zip-file fileb://funcion.zip \
             --query "LastModified" --output text
           aws lambda wait function-updated --function-name "$FUNCION"
+
+      # Configuración desde GitHub: el correo de recuperación (Brevo) y la URL
+      # pública se FUSIONAN con las variables que ya tiene la función
+      # (DATABASE_URL, JWT_SECRET... no se tocan).
+      - name: Actualizar la configuración de correo
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          BREVO_REMITENTE: ${{ secrets.BREVO_REMITENTE }}
+          URL_PUBLICA: ${{ vars.URL_PUBLICA }}
+        run: |
+          actual=$(aws lambda get-function-configuration --function-name "$FUNCION" --query 'Environment.Variables' --output json)
+          jq -n --argjson v "$actual" --arg k "$BREVO_API_KEY" --arg r "$BREVO_REMITENTE" --arg u "$URL_PUBLICA" \
+            '{Variables: ($v + {BREVO_API_KEY: $k, BREVO_REMITENTE: $r, URL_PUBLICA: $u})}' > entorno.json
+          aws lambda update-function-configuration --function-name "$FUNCION" \
+            --environment file://entorno.json --query "LastUpdateStatus" --output text
+          rm -f entorno.json
+          aws lambda wait function-updated --function-name "$FUNCION"

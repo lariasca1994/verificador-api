@@ -1,0 +1,20 @@
+{% extends "acceso_base.html" %}
+{% block titulo %}Nueva contraseña — Verificador API{% endblock %}
+{% block paso %}POST /restablecer{% endblock %}
+{% block titulo_form %}Crea una nueva contraseña{% endblock %}
+{% block subtitulo %}Mínimo 8 caracteres.{% endblock %}
+{% block formulario %}
+<form method="post" action="/restablecer">
+    <input type="hidden" name="token" value="{{ token }}" />
+    <div>
+        <label for="password">Nueva contraseña</label>
+        <input type="password" id="password" name="password" minlength="8" autocomplete="new-password" required />
+    </div>
+    <div>
+        <label for="confirmacion">Confirma la nueva contraseña</label>
+        <input type="password" id="confirmacion" name="confirmacion" minlength="8" autocomplete="new-password" required />
+    </div>
+    <button type="submit" class="boton">Guardar contraseña</button>
+</form>
+{% endblock %}
+{% block alterno %}<a href="/recuperar">Pedir otro enlace</a>{% endblock %}
