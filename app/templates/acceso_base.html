@@ -22,6 +22,8 @@
 
                 {% if error %}
                 <div class="alerta bg-rose-50" role="alert">{{ error }}</div>
+                {% elif exito %}
+                <div class="alerta bg-emerald-50 text-emerald-800" role="status">{{ exito }}</div>
                 {% endif %}
 
                 {% block formulario %}{% endblock %}

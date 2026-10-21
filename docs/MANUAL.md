@@ -94,6 +94,16 @@ Qué servicio de nube, base de datos o API usa el proyecto y para qué sirve cad
 | 2 | Contraseña | Tu contraseña |
 | 3 | Entrar | Abre **Mis colecciones** |
 
+### Olvidé mi contraseña
+
+En **Iniciar sesión**, pulsa **¿Olvidaste tu contraseña?** y escribe tu correo. Si la cuenta existe y
+está activa, te llega un enlace para crear una contraseña nueva (mínimo 8 caracteres). El enlace vence
+en 30 minutos y sirve una sola vez. La pantalla muestra el mismo mensaje exista o no la cuenta.
+
+### Cambiar la contraseña
+
+Con la sesión iniciada, abre **Contraseña** en el menú, escribe la actual y la nueva dos veces.
+
 ### 4.3 Mis colecciones
 
 ![Lista de colecciones](img/manual/03-colecciones.png)
