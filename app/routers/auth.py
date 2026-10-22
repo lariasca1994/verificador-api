@@ -9,9 +9,13 @@ import html
 import threading
 import time
 
-from app import correo
+from app import correo, mfa
 from app.seguridad import (
+    COOKIE_MFA,
+    MFA_MINUTOS,
     NOMBRE_COOKIE,
+    crear_token_mfa,
+    leer_token_mfa,
     RECUPERAR_MINUTOS,
     crear_token,
     crear_token_recuperacion,
@@ -47,11 +51,20 @@ def procesar_login(
             status_code=401,
         )
 
-    token = crear_token(usuario.id)
+    if not usuario.activo:
+        return plantillas.TemplateResponse(
+            request, "login.html", {"error": "Esta cuenta está suspendida", "centrar": True}, status_code=403
+        )
+    # La contraseña sola no abre sesión: falta el segundo paso.
+    if mfa.preferido(usuario) == "correo":
+        mfa.enviar_codigo(usuario)
+    return _pase_mfa(usuario)
+
+
+def _abrir_sesion(usuario: Usuario) -> RedirectResponse:
     respuesta = RedirectResponse(url="/colecciones", status_code=303)
-    respuesta.set_cookie(
-        NOMBRE_COOKIE, token, httponly=True, samesite="lax", max_age=8 * 3600
-    )
+    respuesta.set_cookie(NOMBRE_COOKIE, crear_token(usuario.id), httponly=True, samesite="lax", max_age=8 * 3600)
+    respuesta.delete_cookie(COOKIE_MFA)
     return respuesta
 
 
@@ -98,12 +111,145 @@ def procesar_registro(
     db.commit()
     db.refresh(usuario)
 
-    token = crear_token(usuario.id)
-    respuesta = RedirectResponse(url="/colecciones", status_code=303)
-    respuesta.set_cookie(
-        NOMBRE_COOKIE, token, httponly=True, samesite="lax", max_age=8 * 3600
-    )
+    # Antes de entrar, la cuenta elige su verificación en dos pasos.
+    return _pase_mfa(usuario)
+
+
+# ── Verificación en dos pasos ──────────────────────────────────────────────
+
+
+def _pase_mfa(usuario: Usuario) -> RedirectResponse:
+    respuesta = RedirectResponse(url="/verificacion", status_code=303)
+    respuesta.set_cookie(COOKIE_MFA, crear_token_mfa(usuario.id), httponly=True, samesite="lax",
+                         max_age=MFA_MINUTOS * 60)
     return respuesta
+
+
+def _usuario_en_verificacion(request: Request, db: Session) -> Usuario | None:
+    usuario_id = leer_token_mfa(request.cookies.get(COOKIE_MFA))
+    usuario = db.get(Usuario, usuario_id) if usuario_id else None
+    return usuario if usuario and usuario.activo else None
+
+
+def _vencido() -> RedirectResponse:
+    return RedirectResponse(url="/login", status_code=303)
+
+
+def _pantalla_mfa(request: Request, usuario: Usuario, metodo: str | None = None, status_code: int = 200, **contexto):
+    if not mfa.configurado(usuario):
+        return plantillas.TemplateResponse(request, "mfa_elegir.html",
+                                           {"metodos": mfa.METODOS, "centrar": True, **contexto}, status_code=status_code)
+    metodo = metodo if metodo in mfa.metodos_activos(usuario) else mfa.preferido(usuario)
+    otros = [m for m in mfa.metodos_activos(usuario) if m != metodo]
+    return plantillas.TemplateResponse(
+        request, "mfa_verificar.html",
+        {"metodo": metodo, "otro": otros[0] if otros else None, "metodos": mfa.METODOS,
+         "email": usuario.email, "centrar": True, **contexto},
+        status_code=status_code,
+    )
+
+
+def _iniciar_metodo(request: Request, usuario: Usuario, metodo: str, accion: str, vista: str, **contexto):
+    if metodo == "totp":
+        return _confirmar_metodo(request, usuario, metodo, accion, vista, app=mfa.iniciar_totp(usuario), **contexto)
+    if not mfa.enviar_codigo(usuario):
+        contexto["error"] = "Pediste varios códigos seguidos. Espera unos minutos."
+    return _confirmar_metodo(request, usuario, "correo", accion, vista, **contexto)
+
+
+def _confirmar_metodo(request: Request, usuario: Usuario, metodo: str, accion: str, vista: str, **contexto):
+    plantilla = "mfa_confirmar.html" if vista == "acceso" else "cuenta_seguridad.html"
+    base = {"metodo": metodo, "accion": accion, "metodos": mfa.METODOS, "email": usuario.email, "centrar": vista == "acceso"}
+    if vista != "acceso":
+        base.update(_contexto_seguridad(usuario))
+    return plantillas.TemplateResponse(request, plantilla, {**base, **contexto},
+                                       status_code=401 if "error" in contexto else 200)
+
+
+def _contexto_seguridad(usuario: Usuario) -> dict:
+    return {"usuario": usuario, "activos": mfa.metodos_activos(usuario), "preferido": mfa.preferido(usuario)}
+
+
+@router.get("/verificacion")
+def form_verificacion(request: Request, metodo: str | None = None, db: Session = Depends(obtener_db)):
+    usuario = _usuario_en_verificacion(request, db)
+    return _pantalla_mfa(request, usuario, metodo) if usuario else _vencido()
+
+
+@router.post("/verificacion")
+def procesar_verificacion(request: Request, metodo: str = Form(...), codigo: str = Form(...),
+                          db: Session = Depends(obtener_db)):
+    usuario = _usuario_en_verificacion(request, db)
+    if not usuario:
+        return _vencido()
+    if not mfa.verificar(usuario, metodo, codigo):
+        return _pantalla_mfa(request, usuario, metodo, status_code=401, error="El código no es correcto o ya venció.")
+    return _abrir_sesion(usuario)
+
+
+@router.post("/verificacion/correo")
+def reenviar_codigo(request: Request, db: Session = Depends(obtener_db)):
+    usuario = _usuario_en_verificacion(request, db)
+    if not usuario:
+        return _vencido()
+    if not mfa.enviar_codigo(usuario):
+        return _pantalla_mfa(request, usuario, "correo", error="Pediste varios códigos seguidos. Espera unos minutos.")
+    return _pantalla_mfa(request, usuario, "correo", exito=f"Te enviamos un código a {usuario.email}.")
+
+
+@router.post("/verificacion/configurar")
+def configurar_metodo(request: Request, metodo: str = Form(...), db: Session = Depends(obtener_db)):
+    usuario = _usuario_en_verificacion(request, db)
+    if not usuario:
+        return _vencido()
+    return _iniciar_metodo(request, usuario, metodo, "/verificacion/activar", "acceso")
+
+
+@router.post("/verificacion/activar")
+def activar_metodo(request: Request, metodo: str = Form(...), codigo: str = Form(...),
+                   db: Session = Depends(obtener_db)):
+    usuario = _usuario_en_verificacion(request, db)
+    if not usuario:
+        return _vencido()
+    if mfa.configurado(usuario):  # ya tiene uno: este paso es solo para la primera vez
+        return _pantalla_mfa(request, usuario)
+    activado = mfa.activar_totp(usuario, codigo) if metodo == "totp" else mfa.activar_correo(usuario, codigo)
+    if not activado:
+        return _confirmar_metodo(request, usuario, metodo, "/verificacion/activar", "acceso",
+                                 error="El código no es correcto o ya venció.")
+    return _abrir_sesion(usuario)
+
+
+@router.get("/cuenta/seguridad")
+def form_seguridad(request: Request, usuario: Usuario = Depends(usuario_actual)):
+    return plantillas.TemplateResponse(request, "cuenta_seguridad.html",
+                                       {"metodos": mfa.METODOS, **_contexto_seguridad(usuario)})
+
+
+@router.post("/cuenta/seguridad/agregar")
+def agregar_metodo(request: Request, metodo: str = Form(...), usuario: Usuario = Depends(usuario_actual)):
+    if metodo not in mfa.METODOS or metodo in mfa.metodos_activos(usuario):
+        return RedirectResponse(url="/cuenta/seguridad", status_code=303)
+    return _iniciar_metodo(request, usuario, metodo, "/cuenta/seguridad/activar", "cuenta")
+
+
+@router.post("/cuenta/seguridad/activar")
+def activar_en_perfil(request: Request, metodo: str = Form(...), codigo: str = Form(...),
+                      usuario: Usuario = Depends(usuario_actual)):
+    activado = mfa.activar_totp(usuario, codigo) if metodo == "totp" else mfa.activar_correo(usuario, codigo)
+    if not activado:
+        return _confirmar_metodo(request, usuario, metodo, "/cuenta/seguridad/activar", "cuenta",
+                                 error="El código no es correcto o ya venció.")
+    return plantillas.TemplateResponse(request, "cuenta_seguridad.html", {
+        "metodos": mfa.METODOS, **_contexto_seguridad(usuario),
+        "exito": f"{mfa.METODOS[metodo]} quedó activada como segundo paso.",
+    })
+
+
+@router.post("/cuenta/seguridad/preferido")
+def cambiar_preferido(metodo: str = Form(...), usuario: Usuario = Depends(usuario_actual)):
+    mfa.elegir_preferido(usuario, metodo)
+    return RedirectResponse(url="/cuenta/seguridad", status_code=303)
 
 
 @router.post("/logout")

@@ -2,6 +2,7 @@ import datetime
 
 from sqlalchemy import (
     JSON,
+    JSON,
     Boolean,
     Column,
     DateTime,
@@ -33,6 +34,9 @@ class Usuario(Base):
     # en cada request).
     activo = Column(Boolean, default=True, nullable=False)
     creado_en = Column(DateTime, default=datetime.datetime.utcnow)
+    # Verificación en dos pasos (ver app/mfa.py): clave TOTP cifrada, código del
+    # correo como huella, método preferido.
+    mfa = Column(JSON, nullable=True)
 
     colecciones = relationship("Coleccion", back_populates="propietario")
 

@@ -1,0 +1,9 @@
+{% extends "acceso_base.html" %}
+{% block titulo %}Verificación en dos pasos — Verificador API{% endblock %}
+{% block paso %}POST /verificacion/activar{% endblock %}
+{% block titulo_form %}{{ metodos[metodo] }}{% endblock %}
+{% block subtitulo %}Confirma el método con un código para terminar de ingresar.{% endblock %}
+{% block formulario %}
+{% include "_mfa_activar.html" %}
+{% endblock %}
+{% block alterno %}<a href="/verificacion">Elegir otro método</a>{% endblock %}
