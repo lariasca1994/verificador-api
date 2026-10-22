@@ -82,7 +82,7 @@ Qué servicio de nube, base de datos o API usa el proyecto y para qué sirve cad
 | 1 | Nombre | Tu nombre | Obligatorio |
 | 2 | Correo | El correo con el que vas a entrar | Formato válido y único |
 | 3 | Contraseña | Tu contraseña | Mínimo 8 caracteres; máximo 72 bytes |
-| 4 | Crear cuenta | Botón | Crea la cuenta y te deja con la sesión iniciada |
+| 4 | Crear cuenta | Botón | Crea la cuenta y te lleva a elegir tu verificación en dos pasos |
 
 ### 4.2 Iniciar sesión
 
@@ -92,7 +92,7 @@ Qué servicio de nube, base de datos o API usa el proyecto y para qué sirve cad
 |:-:|---|---|
 | 1 | Correo | El correo de tu cuenta |
 | 2 | Contraseña | Tu contraseña |
-| 3 | Entrar | Abre **Mis colecciones** |
+| 3 | Entrar | Pide el código de tu verificación en dos pasos; al escribirlo y pulsar **Verificar** se abre **Mis colecciones** |
 
 ### Olvidé mi contraseña
 
@@ -103,6 +103,20 @@ en 30 minutos y sirve una sola vez. La pantalla muestra el mismo mensaje exista 
 ### Cambiar la contraseña
 
 Con la sesión iniciada, abre **Contraseña** en el menú, escribe la actual y la nueva dos veces.
+
+### Verificación en dos pasos (obligatoria)
+
+Cada ingreso pide, además de la contraseña, un código. La primera vez que ingresas (o al crear la
+cuenta) eliges cómo recibirlo:
+
+| Método | Cómo funciona |
+|---|---|
+| **App autenticadora** (recomendado) | Escaneas un código QR con Google Authenticator, Microsoft Authenticator u otra app; desde ese momento la app muestra un código nuevo cada 30 segundos, incluso sin internet. Si no puedes escanear, escribe la clave que aparece bajo el QR. |
+| **Código por correo** | Cada vez que ingresas te llega un código de 6 dígitos que vence en 10 minutos y sirve una sola vez. |
+
+Confirma el método escribiendo el primer código. Desde **Seguridad** (menú superior) puedes
+**agregar el método que no elegiste** y escoger cuál se pide **por defecto**; tener los dos te
+permite entrar aunque no tengas el teléfono a mano.
 
 ### 4.3 Mis colecciones
 
@@ -179,6 +193,7 @@ Tu confianza es lo primero: la plataforma solo pide los datos necesarios para fu
 | Contraseña | Iniciar sesión | PostgreSQL, **solo su huella bcrypt** | Nadie: no se puede leer ni recuperar |
 | Colecciones y pruebas (URL, headers, body) | Ejecutar las verificaciones | PostgreSQL, **tal cual las escribes** | Tú y el administrador (solo lectura) |
 | Resultados de ejecución | Historial y evidencia | PostgreSQL | Tú y el administrador |
+| Verificación en dos pasos | Confirmar que eres tú al ingresar | PostgreSQL (Neon): clave de la app **cifrada** (AES-GCM) y código del correo **solo como huella** | Nadie: no se puede leer desde la base |
 | Sesión | Mantenerte conectado | Cookie en tu navegador | Firmada, invisible para JavaScript, vence a las 8 horas |
 
 ### Cómo se protege tu información
@@ -187,6 +202,9 @@ Comprobado en el código del proyecto (`app/seguridad.py`, `app/dependencias.py`
 `app/routers/`):
 
 - **Contraseñas con bcrypt.** Solo se guarda la huella.
+- **Verificación en dos pasos obligatoria** con app autenticadora (TOTP) o código por correo:
+  la clave de la app se guarda cifrada, un código no se acepta dos veces, y el código del correo
+  vence en 10 minutos, admite 5 intentos y se pueden pedir 3 cada 10 minutos.
 - **Sesión con JWT en cookie `HttpOnly` y `SameSite=Lax`**, válida por 8 horas. Una cuenta
   suspendida por el administrador pierde el acceso de inmediato.
 - **Cada colección es de su dueño:** nadie más puede verla, ejecutarla ni editarla. El
