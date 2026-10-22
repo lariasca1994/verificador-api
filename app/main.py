@@ -3,6 +3,7 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from sqlalchemy import text
 from sqlalchemy.exc import InterfaceError, OperationalError
 
 from app.database import Base, engine
@@ -19,6 +20,9 @@ registro = logging.getLogger("verificador")
 # de un error 502 de la plataforma.
 try:
     Base.metadata.create_all(bind=engine)
+    # Columnas agregadas después de crear la tabla (create_all no altera tablas).
+    with engine.begin() as conexion:
+        conexion.execute(text("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS mfa JSONB"))
 except (OperationalError, InterfaceError) as error:
     registro.warning("PostgreSQL no disponible al arrancar: %s", type(error).__name__)
 
