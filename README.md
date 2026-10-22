@@ -72,7 +72,8 @@ app/
 </p>
 
 - Las páginas usan Jinja2 + Tailwind y la sesión viaja en un JWT dentro de una
-  cookie.
+  cookie. El ingreso exige un segundo paso obligatorio: app autenticadora (TOTP,
+  clave cifrada con AES-GCM) o código por correo (guardado solo como huella).
 - El **ejecutor** recorre la colección, llama a cada endpoint con `requests` y
   compara el código de estado y el contenido con lo esperado.
 - **SQLAlchemy** guarda colecciones, pruebas y resultados en PostgreSQL, por TLS
@@ -117,12 +118,15 @@ Dos detalles importan por tratarse de Neon específicamente:
 
 1. En la página de inicio, pulsa **Crear cuenta**.
 2. Completa **Nombre**, **Correo** y **Contraseña**.
-3. Pulsa **Crear cuenta**. La cuenta queda lista para usar de inmediato.
+3. Pulsa **Crear cuenta** y elige tu verificación en dos pasos: **App autenticadora** (escanea el
+   QR y escribe el primer código) o **Código por correo**.
 
 ### 5.2 Iniciar sesión
 
 1. Pulsa **Iniciar sesión**, escribe **Correo** y **Contraseña** y pulsa **Entrar**.
-2. Llegas a **Mis colecciones**, donde solo ves tus propias colecciones.
+2. Escribe el código de 6 dígitos de tu app o de tu correo y pulsa **Verificar**. En **Seguridad**
+   puedes agregar el otro método y elegir cuál se pide por defecto.
+3. Llegas a **Mis colecciones**, donde solo ves tus propias colecciones.
 
 **Recuperar o cambiar la contraseña**
 
