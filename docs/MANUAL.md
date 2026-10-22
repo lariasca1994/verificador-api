@@ -203,8 +203,9 @@ Comprobado en el código del proyecto (`app/seguridad.py`, `app/dependencias.py`
 
 - **Contraseñas con bcrypt.** Solo se guarda la huella.
 - **Verificación en dos pasos obligatoria** con app autenticadora (TOTP) o código por correo:
-  la clave de la app se guarda cifrada, un código no se acepta dos veces, y el código del correo
-  vence en 10 minutos, admite 5 intentos y se pueden pedir 3 cada 10 minutos.
+  la clave de la app se guarda cifrada, un código no se acepta dos veces, 5 códigos errados de la
+  app la bloquean 15 minutos, y el código del correo vence en 10 minutos, admite 5 intentos y se
+  pueden pedir 3 cada 10 minutos.
 - **Sesión con JWT en cookie `HttpOnly` y `SameSite=Lax`**, válida por 8 horas. Una cuenta
   suspendida por el administrador pierde el acceso de inmediato.
 - **Cada colección es de su dueño:** nadie más puede verla, ejecutarla ni editarla. El
