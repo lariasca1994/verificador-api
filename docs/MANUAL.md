@@ -217,6 +217,9 @@ Comprobado en el código del proyecto (`app/seguridad.py`, `app/dependencias.py`
   como texto, no como código.
 - **Secretos fuera del repositorio:** conexión a PostgreSQL y clave JWT en variables de entorno de
   AWS Lambda.
+- **Runtime con parches de seguridad:** las dependencias exigen certifi 2026.10.19 o posterior, que
+  deja de confiar en los certificados intermedios comprometidos de eMudhra; AWS Lambda mantiene
+  actualizado Python 3.12.
 
 ## 6. Agradecimientos
 
