@@ -80,3 +80,10 @@ jobs:
             --environment file://entorno.json --query "LastUpdateStatus" --output text
           rm -f entorno.json
           aws lambda wait function-updated --function-name "$FUNCION"
+
+      # Depuración: los logs de la función se guardan 14 días (el valor de CloudWatch más
+      # cercano a 15) y luego se borran solos.
+      - name: Retención de logs de 14 días
+        run: |
+          aws logs put-retention-policy --log-group-name /aws/lambda/verificador-api --retention-in-days 14 \
+            || echo "::warning::No se pudo fijar la retención de /aws/lambda/verificador-api"
