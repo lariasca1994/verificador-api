@@ -59,7 +59,7 @@ app/
 ├── main.py            Arranque de FastAPI y registro de routers
 ├── database.py         Conexión a PostgreSQL (Neon)
 ├── models.py            Usuario, Colección, Prueba, Ejecución, ResultadoPrueba
-├── seguridad.py          JWT en cookie httponly + bcrypt
+├── seguridad.py          Sesión y contraseñas
 ├── dependencias.py        Control de acceso: cada cuenta accede a lo suyo
 ├── ejecutor.py            Corre las pruebas de una colección con requests
 ├── routers/               web (inicio), auth, colecciones, ejecuciones
@@ -76,7 +76,7 @@ app/
 
 - Las páginas usan Jinja2 + Tailwind y la sesión viaja en un JWT dentro de una
   cookie. El ingreso exige un segundo paso obligatorio: app autenticadora (TOTP,
-  clave cifrada con AES-GCM) o código por correo (guardado solo como huella).
+  clave cifrada) o código por correo (guardado solo como huella).
 - El **ejecutor** recorre la colección, llama a cada endpoint con `requests` y
   compara el código de estado y el contenido con lo esperado.
 - **SQLAlchemy** guarda colecciones, pruebas y resultados en PostgreSQL, por TLS

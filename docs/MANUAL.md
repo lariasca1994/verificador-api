@@ -189,18 +189,18 @@ Tu confianza es lo primero: la plataforma solo pide los datos necesarios para fu
 | Dato | Para qué se usa | Dónde se guarda | Quién lo ve |
 |---|---|---|---|
 | Nombre y correo | Identificar tu cuenta | PostgreSQL (Neon) | Tú y el administrador |
-| Contraseña | Iniciar sesión | PostgreSQL, **solo su huella bcrypt** | Nadie: no se puede leer ni recuperar |
+| Contraseña | Iniciar sesión | PostgreSQL, **solo su huella** | Nadie: no se puede leer ni recuperar |
 | Colecciones y pruebas (URL, headers, body) | Ejecutar las verificaciones | PostgreSQL, **tal cual las escribes** | Tú y el administrador (solo lectura) |
 | Resultados de ejecución | Historial y evidencia | PostgreSQL | Tú y el administrador |
-| Verificación en dos pasos | Confirmar que eres tú al ingresar | PostgreSQL (Neon): clave de la app **cifrada** (AES-GCM) y código del correo **solo como huella** | Nadie: no se puede leer desde la base |
-| Sesión | Mantenerte conectado | Cookie en tu navegador | Firmada, invisible para JavaScript, vence a las 8 horas |
+| Verificación en dos pasos | Confirmar que eres tú al ingresar | PostgreSQL (Neon): clave de la app **cifrada** y código del correo **solo como huella** | Nadie: no se puede leer desde la base |
+| Sesión | Mantenerte conectado | Cookie en tu navegador | Firmada, invisible para JavaScript; vence sola |
 
 ### Cómo se protege tu información
 
 Comprobado en el código del proyecto (`app/seguridad.py`, `app/dependencias.py`,
 `app/routers/`):
 
-- **Contraseñas con bcrypt.** Solo se guarda la huella.
+- **Contraseñas protegidas.** Solo se guarda la huella.
 - **Verificación en dos pasos obligatoria** con app autenticadora (TOTP) o código por correo:
   la clave de la app se guarda cifrada, un código no se acepta dos veces, los intentos errados
   bloquean temporalmente y el código del correo vence en pocos minutos.
