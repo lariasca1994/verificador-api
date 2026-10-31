@@ -215,6 +215,9 @@ Comprobado en el código del proyecto (`app/seguridad.py`, `app/dependencias.py`
   como texto, no como código.
 - **Secretos fuera del repositorio:** conexión a PostgreSQL y clave JWT en variables de entorno de
   AWS Lambda.
+- **Bloqueo temporal** ante intentos fallidos repetidos de contraseña o de código.
+- **Registro de eventos de seguridad:** ingresos, intentos fallidos, bloqueos y cambios de
+  contraseña quedan registrados (nunca contraseñas ni códigos) y se depuran solos.
 - **Al día en seguridad:** el runtime, el sistema y las dependencias se mantienen con los últimos
   parches y se revisan periódicamente.
 

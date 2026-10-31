@@ -9,7 +9,7 @@ import html
 import threading
 import time
 
-from app import correo, mfa
+from app import auditoria, correo, mfa
 from app.seguridad import (
     COOKIE_MFA,
     MFA_MINUTOS,
@@ -43,7 +43,13 @@ def procesar_login(
     db: Session = Depends(obtener_db),
 ):
     usuario = db.query(Usuario).filter(Usuario.email == email.strip().lower()).first()
+    if usuario is not None and mfa.clave_bloqueada(usuario):
+        return plantillas.TemplateResponse(
+            request, "login.html", {"error": mfa.MENSAJE_BLOQUEO, "centrar": True}, status_code=429
+        )
     if usuario is None or not verificar_password(password, usuario.password_hash):
+        if usuario is not None:
+            mfa.fallo_de_clave(usuario)
         return plantillas.TemplateResponse(
             request,
             "login.html",
@@ -51,6 +57,7 @@ def procesar_login(
             status_code=401,
         )
 
+    mfa.clave_correcta(usuario)
     if not usuario.activo:
         return plantillas.TemplateResponse(
             request, "login.html", {"error": "Esta cuenta está suspendida", "centrar": True}, status_code=403
@@ -302,6 +309,7 @@ def procesar_recuperar(request: Request, email: str = Form(...), db: Session = D
     usuario = db.query(Usuario).filter(Usuario.email == email).first()
     if usuario is not None and usuario.activo and _puede_enviar(email):
         enlace = f"{correo.URL_PUBLICA}/restablecer?token={crear_token_recuperacion(usuario.id, usuario.password_hash)}"
+        auditoria.registrar(auditoria.RECUPERACION, usuario)
         correo.enviar(
             usuario.email, usuario.nombre, "Restablece tu contraseña · Verificador API",
             f"Hola {usuario.nombre},\n\nPara crear una contraseña nueva abre este enlace (vence en "
@@ -341,6 +349,7 @@ def procesar_restablecer(
         )
     usuario.password_hash = nuevo
     db.commit()
+    mfa.clave_restablecida(usuario)
     return plantillas.TemplateResponse(
         request, "login.html", {"centrar": True, "exito": "Tu contraseña quedó actualizada. Ya puedes ingresar."}
     )
@@ -373,6 +382,7 @@ def cambiar_contrasena(
     registro = db.get(Usuario, usuario.id)
     registro.password_hash = nuevo
     db.commit()
+    mfa.clave_restablecida(registro)
     return plantillas.TemplateResponse(
         request, "cuenta_contrasena.html", {"usuario": usuario, "exito": "Tu contraseña quedó actualizada."}
     )

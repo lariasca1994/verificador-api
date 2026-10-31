@@ -120,3 +120,16 @@ class ResultadoPrueba(Base):
     detalle_error = Column(Text, nullable=True)
 
     ejecucion = relationship("Ejecucion", back_populates="resultados")
+
+
+class EventoSeguridad(Base):
+    """Evento de seguridad de una cuenta (ingresos, fallos, bloqueos, cambios).
+
+    Solo el tipo, la cuenta y la fecha; se depura a los 15 días."""
+
+    __tablename__ = "eventos_seguridad"
+
+    id = Column(Integer, primary_key=True)
+    tipo = Column(String(40), nullable=False)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False, index=True)
+    fecha = Column(DateTime, default=datetime.datetime.utcnow, nullable=False, index=True)

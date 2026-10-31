@@ -39,6 +39,9 @@ Postman/Newman.
   qué pasó, qué falló y cuánto tardó cada una.
 - **Para qué sirve:** detectar rápido si un cambio rompió algo, y guardar un
   historial de resultados como evidencia de pruebas.
+- **Seguridad:** verificación en dos pasos obligatoria, bloqueo temporal ante intentos fallidos
+  repetidos y registro de eventos de seguridad (ingresos, intentos fallidos, bloqueos y cambios
+  de contraseña).
 - **Cómo probarlo:** entra a la [demo](https://eofvlnitsiuodup4eywdcenxwu0adgbz.lambda-url.us-east-1.on.aws/),
   crea una cuenta, arma una colección y ejecútala. Para correrlo en tu equipo,
   ve a [Instalación para pruebas](#6-instalación-para-pruebas).
