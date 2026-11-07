@@ -49,9 +49,12 @@ def verificar_password(password: str, password_hash: str) -> bool:
     return _contexto_password.verify(password, password_hash)
 
 
-def crear_token(usuario_id: int) -> str:
+def crear_token(usuario_id: int, password_hash: str) -> str:
+    """Sesión firmada. Lleva la huella de la contraseña: al restablecerla o
+    cambiarla, todas las sesiones abiertas con la anterior dejan de servir."""
     payload = {
         "sub": str(usuario_id),
+        "h": _huella(password_hash),
         "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=JWT_HORAS_VALIDEZ),
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITMO)
@@ -90,12 +93,12 @@ COOKIE_MFA = "verificador_mfa"
 MFA_MINUTOS = 10
 
 
-def crear_token_mfa(usuario_id: int) -> str:
+def crear_token_mfa(usuario_id: int, minutos: int = MFA_MINUTOS) -> str:
     """Pase de 10 minutos entre la contraseña y el código de la verificación en dos
     pasos. No sirve como sesión: _decodificar_token lo rechaza por llevar audiencia."""
     return jwt.encode(
         {"sub": str(usuario_id), "aud": _AUDIENCIA_MFA,
-         "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=MFA_MINUTOS)},
+         "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=minutos)},
         JWT_SECRET, algorithm=JWT_ALGORITMO,
     )
 
@@ -113,11 +116,11 @@ def huella_coincide(password_hash: str, huella: str) -> bool:
     return hmac.compare_digest(_huella(password_hash), huella)
 
 
-def _decodificar_token(token: str) -> int | None:
+def _decodificar_token(token: str) -> tuple[int, str] | None:
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITMO])
-        return int(payload["sub"])
-    except jwt.PyJWTError:
+        return int(payload["sub"]), str(payload["h"])
+    except (jwt.PyJWTError, KeyError, ValueError):
         return None
 
 
@@ -126,10 +129,13 @@ def usuario_opcional(request: Request, db: Session = Depends(obtener_db)) -> Usu
     token = request.cookies.get(NOMBRE_COOKIE)
     if not token:
         return None
-    usuario_id = _decodificar_token(token)
-    if usuario_id is None:
+    leido = _decodificar_token(token)
+    if leido is None:
         return None
-    usuario = db.get(Usuario, usuario_id)
+    usuario = db.get(Usuario, leido[0])
+    if usuario is not None and not huella_coincide(usuario.password_hash, leido[1]):
+        # La contraseña cambió después de abrir esta sesión: queda cerrada.
+        return None
     if usuario is not None and not usuario.activo:
         # Cuenta suspendida por un admin: se trata igual que "no hay
         # sesión" — el token puede seguir siendo válido, pero la cuenta

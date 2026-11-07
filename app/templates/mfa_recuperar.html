@@ -1,0 +1,16 @@
+{% extends "acceso_base.html" %}
+{% block titulo %}Recupera tu acceso — Verificador de APIs{% endblock %}
+{% block paso %}POST /verificacion/recuperar{% endblock %}
+{% block titulo_form %}Perdí mi autenticador{% endblock %}
+{% block subtitulo %}Escribe el código de 6 dígitos que enviamos a {{ email }}. Vence en {{ minutos }} minutos. Después configurarás tu app autenticadora nueva.{% endblock %}
+{% block formulario %}
+<form method="post" action="/verificacion/recuperar/codigo">
+    <div>
+        <label for="codigo">Código de 6 dígitos</label>
+        <input type="text" id="codigo" name="codigo" required inputmode="numeric" pattern="[0-9 ]{6,7}" maxlength="7" autocomplete="one-time-code" autofocus />
+    </div>
+    <button type="submit" class="boton">Verificar</button>
+</form>
+<form method="post" action="/verificacion/recuperar"><button type="submit" class="enlace-boton">Enviar otro código</button></form>
+{% endblock %}
+{% block alterno %}<a href="/verificacion">Volver</a>{% endblock %}

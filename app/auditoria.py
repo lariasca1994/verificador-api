@@ -19,6 +19,7 @@ CUENTA_BLOQUEADA = "cuenta_bloqueada"
 CLAVE_CAMBIADA = "clave_cambiada"
 RECUPERACION = "recuperacion_solicitada"
 METODO_ACTIVADO = "metodo_activado"
+RECUPERACION_MFA = "recuperacion_autenticador"
 
 RETENCION_DIAS = 15
 

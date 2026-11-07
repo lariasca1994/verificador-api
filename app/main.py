@@ -26,7 +26,7 @@ try:
 except (OperationalError, InterfaceError) as error:
     registro.warning("PostgreSQL no disponible al arrancar: %s", type(error).__name__)
 
-app = FastAPI(title="Verificador API")
+app = FastAPI(title="Verificador de APIs")
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 

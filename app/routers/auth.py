@@ -70,7 +70,7 @@ def procesar_login(
 
 def _abrir_sesion(usuario: Usuario) -> RedirectResponse:
     respuesta = RedirectResponse(url="/colecciones", status_code=303)
-    respuesta.set_cookie(NOMBRE_COOKIE, crear_token(usuario.id), httponly=True, samesite="lax", max_age=8 * 3600)
+    respuesta.set_cookie(NOMBRE_COOKIE, crear_token(usuario.id, usuario.password_hash), httponly=True, samesite="lax", max_age=8 * 3600)
     respuesta.delete_cookie(COOKIE_MFA)
     return respuesta
 
@@ -126,9 +126,13 @@ def procesar_registro(
 
 
 def _pase_mfa(usuario: Usuario) -> RedirectResponse:
-    respuesta = RedirectResponse(url="/verificacion", status_code=303)
-    respuesta.set_cookie(COOKIE_MFA, crear_token_mfa(usuario.id), httponly=True, samesite="lax",
-                         max_age=MFA_MINUTOS * 60)
+    return _con_pase(RedirectResponse(url="/verificacion", status_code=303), usuario)
+
+
+def _con_pase(respuesta, usuario: Usuario, minutos: int = MFA_MINUTOS):
+    """Deja (o renueva) el pase entre la contraseña y el segundo paso."""
+    respuesta.set_cookie(COOKIE_MFA, crear_token_mfa(usuario.id, minutos), httponly=True, samesite="lax",
+                         max_age=minutos * 60)
     return respuesta
 
 
@@ -165,6 +169,8 @@ def _iniciar_metodo(request: Request, usuario: Usuario, metodo: str, accion: str
 
 
 def _confirmar_metodo(request: Request, usuario: Usuario, metodo: str, accion: str, vista: str, **contexto):
+    if metodo == "totp" and "app" not in contexto:
+        contexto["app"] = mfa.qr_pendiente(usuario)  # tras un código errado se vuelve a mostrar el QR
     plantilla = "mfa_confirmar.html" if vista == "acceso" else "cuenta_seguridad.html"
     base = {"metodo": metodo, "accion": accion, "metodos": mfa.METODOS, "email": usuario.email, "centrar": vista == "acceso"}
     if vista != "acceso":
@@ -224,6 +230,58 @@ def activar_metodo(request: Request, metodo: str = Form(...), codigo: str = Form
     if not activado:
         return _confirmar_metodo(request, usuario, metodo, "/verificacion/activar", "acceso",
                                  error="El código no es correcto o ya venció.")
+    return _abrir_sesion(usuario)
+
+
+# ── Perdí mi autenticador ──────────────────────────────────────────────────
+
+_DEMASIADOS = "Pediste varios códigos seguidos o hubo demasiados intentos. Espera unos minutos."
+
+
+def _pantalla_recuperar(request: Request, usuario: Usuario, status_code: int = 200, **contexto):
+    return plantillas.TemplateResponse(
+        request, "mfa_recuperar.html",
+        {"email": usuario.email, "minutos": mfa.RECUPERAR_MINUTOS, "centrar": True, **contexto},
+        status_code=status_code,
+    )
+
+
+@router.post("/verificacion/recuperar")
+def recuperar_autenticador(request: Request, db: Session = Depends(obtener_db)):
+    """Envía un código al correo de la cuenta aunque el método correo no esté activo."""
+    usuario = _usuario_en_verificacion(request, db)
+    if not usuario:
+        return _vencido()
+    if not mfa.enviar_codigo_recuperacion(usuario):
+        return _pantalla_recuperar(request, usuario, status_code=429, error=_DEMASIADOS)
+    # El pase dura lo mismo que el código, para alcanzar a usarlo.
+    return _con_pase(_pantalla_recuperar(request, usuario, exito=f"Te enviamos un código a {usuario.email}."),
+                     usuario, mfa.RECUPERAR_MINUTOS)
+
+
+@router.post("/verificacion/recuperar/codigo")
+def verificar_recuperacion(request: Request, codigo: str = Form(...), db: Session = Depends(obtener_db)):
+    usuario = _usuario_en_verificacion(request, db)
+    if not usuario:
+        return _vencido()
+    if not mfa.verificar_codigo_recuperacion(usuario, codigo):
+        error = _DEMASIADOS if mfa.recuperacion_bloqueada(usuario) else "El código no es correcto o ya venció."
+        return _pantalla_recuperar(request, usuario, status_code=401, error=error)
+    # Código correcto: todavía no hay sesión; primero la app autenticadora nueva.
+    return _con_pase(_confirmar_metodo(request, usuario, "totp", "/verificacion/recuperar/activar", "acceso",
+                                       app=mfa.iniciar_totp(usuario), recuperando=True), usuario)
+
+
+@router.post("/verificacion/recuperar/activar")
+def activar_autenticador_nuevo(request: Request, codigo: str = Form(...), db: Session = Depends(obtener_db)):
+    usuario = _usuario_en_verificacion(request, db)
+    if not usuario:
+        return _vencido()
+    if not mfa.recuperacion_vigente(usuario):
+        return RedirectResponse(url="/verificacion", status_code=303)
+    if not mfa.reemplazar_totp(usuario, codigo):
+        return _confirmar_metodo(request, usuario, "totp", "/verificacion/recuperar/activar", "acceso",
+                                 recuperando=True, error="El código no es correcto o ya venció.")
     return _abrir_sesion(usuario)
 
 
@@ -311,11 +369,11 @@ def procesar_recuperar(request: Request, email: str = Form(...), db: Session = D
         enlace = f"{correo.URL_PUBLICA}/restablecer?token={crear_token_recuperacion(usuario.id, usuario.password_hash)}"
         auditoria.registrar(auditoria.RECUPERACION, usuario)
         correo.enviar(
-            usuario.email, usuario.nombre, "Restablece tu contraseña · Verificador API",
+            usuario.email, usuario.nombre, "Restablece tu contraseña · Verificador de APIs",
             f"Hola {usuario.nombre},\n\nPara crear una contraseña nueva abre este enlace (vence en "
             f"{RECUPERAR_MINUTOS} minutos y sirve una vez):\n\n{enlace}\n\n"
             "Si no fuiste tú, ignora este correo: tu contraseña no cambia.",
-            f"<p>Hola {html.escape(usuario.nombre)},</p><p>Para crear una contraseña nueva en <strong>Verificador API</strong>:</p>"
+            f"<p>Hola {html.escape(usuario.nombre)},</p><p>Para crear una contraseña nueva en <strong>Verificador de APIs</strong>:</p>"
             f'<p><a href="{enlace}" style="background:#336791;color:#fff;padding:10px 18px;border-radius:6px;'
             f'text-decoration:none">Crear contraseña nueva</a></p><p>El enlace vence en {RECUPERAR_MINUTOS} '
             "minutos y sirve una sola vez. Si no fuiste tú, ignora este correo.</p>",
@@ -323,9 +381,18 @@ def procesar_recuperar(request: Request, email: str = Form(...), db: Session = D
     return plantillas.TemplateResponse(request, "recuperar.html", {"centrar": True, "exito": _RESPUESTA_RECUPERAR})
 
 
+def _usuario_del_enlace(token: str, db: Session) -> Usuario | None:
+    """Dueño del enlace si sigue vigente: firmado, sin vencer y sin usar (la contraseña no cambió)."""
+    leido = leer_token_recuperacion(token)
+    usuario = db.get(Usuario, leido[0]) if leido else None
+    if usuario is None or not usuario.activo or not huella_coincide(usuario.password_hash, leido[1]):
+        return None
+    return usuario
+
+
 @router.get("/restablecer")
-def formulario_restablecer(request: Request, token: str = ""):
-    error = None if leer_token_recuperacion(token) else "El enlace no es válido o ya venció. Pide uno nuevo."
+def formulario_restablecer(request: Request, token: str = "", db: Session = Depends(obtener_db)):
+    error = None if _usuario_del_enlace(token, db) else "El enlace no es válido o ya venció. Pide uno nuevo."
     return plantillas.TemplateResponse(request, "restablecer.html", {"centrar": True, "token": token, "error": error})
 
 
@@ -337,9 +404,8 @@ def procesar_restablecer(
     confirmacion: str = Form(...),
     db: Session = Depends(obtener_db),
 ):
-    leido = leer_token_recuperacion(token)
-    usuario = db.get(Usuario, leido[0]) if leido else None
-    if usuario is None or not usuario.activo or not huella_coincide(usuario.password_hash, leido[1]):
+    usuario = _usuario_del_enlace(token, db)
+    if usuario is None:
         error, nuevo = "El enlace no es válido o ya venció. Pide uno nuevo.", None
     else:
         error, nuevo = _validar_nueva(password, confirmacion)
@@ -347,12 +413,17 @@ def procesar_restablecer(
         return plantillas.TemplateResponse(
             request, "restablecer.html", {"centrar": True, "token": token, "error": error}, status_code=400
         )
+    # La huella de la contraseña cambia: el enlace deja de servir y se cierran todas
+    # las sesiones abiertas. La verificación en dos pasos sigue igual.
     usuario.password_hash = nuevo
     db.commit()
     mfa.clave_restablecida(usuario)
-    return plantillas.TemplateResponse(
+    respuesta = plantillas.TemplateResponse(
         request, "login.html", {"centrar": True, "exito": "Tu contraseña quedó actualizada. Ya puedes ingresar."}
     )
+    respuesta.delete_cookie(NOMBRE_COOKIE)
+    respuesta.delete_cookie(COOKIE_MFA)
+    return respuesta
 
 
 @router.get("/cuenta/contrasena")
@@ -383,6 +454,11 @@ def cambiar_contrasena(
     registro.password_hash = nuevo
     db.commit()
     mfa.clave_restablecida(registro)
-    return plantillas.TemplateResponse(
-        request, "cuenta_contrasena.html", {"usuario": usuario, "exito": "Tu contraseña quedó actualizada."}
+    # Las demás sesiones se cierran (cambió la huella); esta sigue con un token nuevo.
+    respuesta = plantillas.TemplateResponse(
+        request, "cuenta_contrasena.html",
+        {"usuario": usuario, "exito": "Tu contraseña quedó actualizada. Se cerraron tus otras sesiones."}
     )
+    respuesta.set_cookie(NOMBRE_COOKIE, crear_token(registro.id, registro.password_hash), httponly=True,
+                         samesite="lax", max_age=8 * 3600)
+    return respuesta

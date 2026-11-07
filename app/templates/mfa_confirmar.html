@@ -1,9 +1,9 @@
 {% extends "acceso_base.html" %}
-{% block titulo %}Verificación en dos pasos — Verificador API{% endblock %}
-{% block paso %}POST /verificacion/activar{% endblock %}
-{% block titulo_form %}{{ metodos[metodo] }}{% endblock %}
-{% block subtitulo %}Confirma el método con un código para terminar de ingresar.{% endblock %}
+{% block titulo %}Verificación en dos pasos — Verificador de APIs{% endblock %}
+{% block paso %}POST {{ accion }}{% endblock %}
+{% block titulo_form %}{% if recuperando %}Configura tu app autenticadora nueva{% else %}{{ metodos[metodo] }}{% endif %}{% endblock %}
+{% block subtitulo %}{% if recuperando %}La app anterior deja de servir cuando actives esta. Hasta entonces no se abre la sesión.{% else %}Confirma el método con un código para terminar de ingresar.{% endif %}{% endblock %}
 {% block formulario %}
 {% include "_mfa_activar.html" %}
 {% endblock %}
-{% block alterno %}<a href="/verificacion">Elegir otro método</a>{% endblock %}
+{% block alterno %}{% if recuperando %}<a href="/login">Volver a iniciar sesión</a>{% else %}<a href="/verificacion">Elegir otro método</a>{% endif %}{% endblock %}

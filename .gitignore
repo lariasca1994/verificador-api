@@ -11,3 +11,7 @@ aws-deploy/env-vars.json
 # Paquete temporal armado para el despliegue en AWS Lambda
 package/
 verificador-api-lambda.zip
+
+# Base SQLite temporal de las pruebas automáticas
+tests/.pruebas.sqlite
+.pytest_cache/

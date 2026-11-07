@@ -14,6 +14,7 @@ on:
       - 'app/**'
       - 'lambda_handler.py'
       - 'requirements.txt'
+      - 'tests/**'
       - '.github/workflows/desplegar.yml'
   workflow_dispatch:
 
@@ -41,6 +42,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
+      # Las pruebas corren con SQLite y sin enviar correos; si fallan, no se despliega.
+      - name: Pruebas
+        run: |
+          pip install --quiet -r requirements.txt pytest httpx
+          python -m pytest -q tests -p no:cacheprovider
 
       - name: Armar el paquete
         run: |
