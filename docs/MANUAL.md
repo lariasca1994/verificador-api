@@ -1,9 +1,9 @@
-# 📘 Manual de usuario · Verificador API
+# 📘 Manual de usuario · Verificador de APIs
 
 Guía para usar la plataforma paso a paso: qué significa cada campo, qué datos se ingresan y qué
 protege la plataforma. Para la parte técnica vuelve al [README](../README.md).
 
-**Demo:** [Verificador API (AWS Lambda)](https://eofvlnitsiuodup4eywdcenxwu0adgbz.lambda-url.us-east-1.on.aws/)
+**Demo:** [Verificador de APIs (AWS Lambda)](https://eofvlnitsiuodup4eywdcenxwu0adgbz.lambda-url.us-east-1.on.aws/)
 
 ## Contenido
 
@@ -92,6 +92,17 @@ Qué servicio de nube, base de datos o API usa el proyecto y para qué sirve cad
 | 1 | Correo | El correo de tu cuenta |
 | 2 | Contraseña | Tu contraseña |
 | 3 | Entrar | Pide el código de tu verificación en dos pasos; al escribirlo y pulsar **Verificar** se abre **Mis colecciones** |
+| 4 | ¿Olvidaste tu contraseña? | Abre la recuperación de contraseña (ver más abajo) |
+
+Después de **Entrar** aparece la pantalla del código:
+
+![Pantalla del código de la verificación en dos pasos](img/manual/08-verificacion.png)
+
+| # | Elemento | Qué hacer |
+|:-:|---|---|
+| 1 | Código de 6 dígitos | El código que muestra tu app autenticadora (o el que te llegó al correo) |
+| 2 | Verificar | Abre **Mis colecciones** |
+| 3 | Perdí mi autenticador | Si ya no tienes la app: te envía un código al correo (ver **Perdí mi autenticador**) |
 
 ### Olvidé mi contraseña
 
@@ -99,9 +110,29 @@ En **Iniciar sesión**, pulsa **¿Olvidaste tu contraseña?** y escribe tu corre
 está activa, te llega un enlace para crear una contraseña nueva (mínimo 8 caracteres). El enlace vence
 en 30 minutos y sirve una sola vez. La pantalla muestra el mismo mensaje exista o no la cuenta.
 
+En el enlace solo escribes la **contraseña nueva** y su **confirmación**. Al guardarla:
+
+- se cierran todas las sesiones que tuvieras abiertas (en cualquier equipo);
+- tu verificación en dos pasos sigue activa: al ingresar con la contraseña nueva te pide el código
+  como siempre.
+
+### Perdí mi autenticador
+
+Si cambiaste o perdiste el teléfono con la app autenticadora:
+
+1. Inicia sesión con tu correo y contraseña.
+2. En la pantalla del código pulsa **Perdí mi autenticador** (siempre está visible).
+3. Te llega un código de 6 dígitos al correo de tu cuenta, aunque no tengas activado el código por
+   correo. Vence en 15 minutos; si no llegó, pulsa **Enviar otro código**.
+4. Escribe el código y pulsa **Verificar**.
+5. La plataforma te pide **configurar tu app autenticadora nueva**: escanea el QR y escribe el primer
+   código. Recién entonces se abre la sesión y la app anterior deja de servir; si no terminas este
+   paso, la app anterior sigue siendo la válida.
+
 ### Cambiar la contraseña
 
-Con la sesión iniciada, abre **Contraseña** en el menú, escribe la actual y la nueva dos veces.
+Con la sesión iniciada, abre **Contraseña** en el menú, escribe la actual y la nueva dos veces. Tu
+sesión actual sigue abierta y las demás se cierran.
 
 ### Verificación en dos pasos (obligatoria)
 
@@ -216,8 +247,11 @@ Comprobado en el código del proyecto (`app/seguridad.py`, `app/dependencias.py`
 - **Secretos fuera del repositorio:** conexión a PostgreSQL y clave JWT en variables de entorno de
   AWS Lambda.
 - **Bloqueo temporal** ante intentos fallidos repetidos de contraseña o de código.
-- **Registro de eventos de seguridad:** ingresos, intentos fallidos, bloqueos y cambios de
-  contraseña quedan registrados (nunca contraseñas ni códigos) y se depuran solos.
+- **Cambiar o restablecer la contraseña cierra las sesiones abiertas** con la contraseña anterior.
+- **Recuperación del autenticador por correo:** el código llega solo al correo de la cuenta, después
+  de la contraseña; la app anterior se reemplaza únicamente cuando la nueva queda confirmada.
+- **Registro de eventos de seguridad:** ingresos, intentos fallidos, bloqueos, recuperaciones y
+  cambios de contraseña quedan registrados (nunca contraseñas ni códigos) y se depuran solos.
 - **Al día en seguridad:** el runtime, el sistema y las dependencias se mantienen con los últimos
   parches y se revisan periódicamente.
 

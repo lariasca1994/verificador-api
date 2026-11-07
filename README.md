@@ -1,4 +1,4 @@
-# Verificador API
+# Verificador de APIs
 
 <p>
   <a href="https://eofvlnitsiuodup4eywdcenxwu0adgbz.lambda-url.us-east-1.on.aws/"><img src="docs/demo-badge.svg" alt="Abrir la demo en vivo" height="32"></a>
@@ -64,6 +64,7 @@ app/
 ├── ejecutor.py            Corre las pruebas de una colección con requests
 ├── routers/               web (inicio), auth, colecciones, ejecuciones
 └── templates/             Jinja2 + Tailwind, tema claro/oscuro
+tests/                     Pruebas automáticas (pytest, SQLite, sin correos reales)
 ```
 
 ---
@@ -135,9 +136,17 @@ Dos detalles importan por tratarse de Neon específicamente:
 
 1. En el inicio de sesión pulsa **¿Olvidaste tu contraseña?** y escribe tu correo. Si la cuenta
    existe, llega un enlace (API de Brevo) que vence en 30 minutos y sirve una sola vez; la respuesta
-   es la misma exista o no la cuenta.
+   es la misma exista o no la cuenta. El enlace solo pide la contraseña nueva y su confirmación; al
+   guardarla se cierran todas las sesiones abiertas y la verificación en dos pasos sigue activa.
 2. Con la sesión iniciada, **Contraseña** (menú superior) cambia la contraseña: pide la actual y la nueva (mínimo
-   8 caracteres).
+   8 caracteres). Las demás sesiones abiertas se cierran.
+
+**Perdí mi autenticador**
+
+En la pantalla del código pulsa **Perdí mi autenticador**: llega un código de 6 dígitos al correo de
+la cuenta (aunque no tengas activado el código por correo) que vence en 15 minutos. Al escribirlo,
+la plataforma pide configurar una app autenticadora nueva (código QR); la sesión se abre y la app
+anterior deja de servir solo cuando la nueva queda confirmada.
 
 ### 5.3 Crear una colección
 
@@ -206,6 +215,16 @@ uvicorn app.main:app --reload --port 8300
 ```
 
 Abre `http://127.0.0.1:8300` y crea tu cuenta.
+
+### Pruebas automáticas
+
+```bash
+pip install pytest httpx
+python -m pytest -q tests
+```
+
+Usan una base SQLite temporal y no envían correos. También corren en cada despliegue: si fallan,
+no se publica nada.
 
 ### Despliegue
 
