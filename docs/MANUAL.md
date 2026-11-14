@@ -104,6 +104,10 @@ Después de **Entrar** aparece la pantalla del código:
 | 2 | Verificar | Abre **Mis colecciones** |
 | 3 | Perdí mi autenticador | Si ya no tienes la app: te envía un código al correo (ver **Perdí mi autenticador**) |
 
+El código se escribe en **seis casillas**, una por dígito: puedes teclearlo o pegarlo completo.
+Un candado sobre el título se abre al enviar el código completo y se sacude si no es válido; con la
+app autenticadora, un anillo muestra cuántos segundos faltan para que la app cambie de código.
+
 ### Olvidé mi contraseña
 
 En **Iniciar sesión**, pulsa **¿Olvidaste tu contraseña?** y escribe tu correo. Si la cuenta existe y
@@ -156,7 +160,19 @@ permite entrar aunque no tengas el teléfono a mano.
 |:-:|---|---|
 | 1 | + Nueva colección | Crea una colección de pruebas |
 
-Solo ves **tus** colecciones.
+Solo ves **tus** colecciones. Arriba, una franja resume cuántas colecciones y pruebas tienes.
+
+**Menú lateral.** A la izquierda está **Mis colecciones** (y **Usuarios** para el administrador);
+una luz azul marca la sección actual. Al pie están tu nombre, **Contraseña**, **Seguridad** y
+**Salir**. **Compactar menú** lo reduce a solo íconos (al pasar el cursor aparece el nombre de
+cada uno) y la preferencia se recuerda en ese equipo.
+
+![Menú lateral compacto con el nombre de la opción al pasar el cursor](img/manual/09-menu-compacto.png)
+
+**En el celular y en la tablet en vertical** el menú se convierte en una **barra inferior**
+translúcida; **Más** abre una hoja desde abajo con Contraseña y Salir.
+
+![Ejecución en el celular con la hoja Más abierta](img/manual/10-movil-mas.png)
 
 ### 4.4 Crear una colección
 
@@ -197,7 +213,11 @@ Solo ves **tus** colecciones.
 
 ![Detalle de una ejecución](img/manual/07-ejecucion.png)
 
-Cada prueba aparece con ✅ o ❌, el código HTTP recibido y el tiempo de respuesta en
+Arriba, una franja resume la ejecución: un anillo con el porcentaje de pruebas exitosas (verde si
+pasaron todas), las fallidas, el tiempo promedio por petición y el de la más lenta. Debajo, una
+barra por prueba compara los tiempos de respuesta (verde si pasó, rojo si falló).
+
+En **Detalle**, cada prueba aparece con ✅ o ❌, el código HTTP recibido y el tiempo de respuesta en
 milisegundos. Si falló, se indica el motivo (status distinto, texto ausente o error de conexión).
 
 ### 4.8 Preguntas frecuentes
@@ -209,7 +229,22 @@ tu equipo (`localhost`) o en una red privada, el servidor de la demo no la alcan
 
 **¿Puedo ver las ejecuciones antiguas?** La colección muestra las 10 más recientes.
 
-**¿Qué significa la pantalla "Estamos en mantenimiento"?** El servicio o su base de datos no están respondiendo en ese momento. No se perdió nada: tus colecciones, pruebas y ejecuciones siguen guardados, y ninguna acción quedó a medias (si no viste la confirmación, no se guardó). La pantalla se actualiza sola y vuelve a la normalidad apenas el servicio responda; también puedes reintentar más tarde.
+**¿Puedo instalarlo como aplicación?** Sí. En Chrome o Edge usa **Instalar aplicación** (ícono
+en la barra de direcciones o menú ⋮); en el iPhone, en Safari, **Compartir → Agregar a inicio**. Se
+abre en su propia ventana y entra directo a tus colecciones.
+
+**¿Qué pasa si me quedo sin internet?** Aparece la pantalla **Sin conexión**, que reintenta sola
+cada pocos segundos (o con **Reintentar ahora**) y vuelve a la página cuando hay red.
+
+![Pantalla sin conexión con reintento automático](img/manual/12-sin-conexion.png)
+
+**Abrí un enlace y dice "Esta ruta no responde 200".** La dirección no existe (un enlace viejo o
+una colección que ya no está). Usa **Ver colecciones** o **Volver al inicio**; si tenías la sesión
+abierta, sigue abierta.
+
+![Página no encontrada](img/manual/11-no-encontrada.png)
+
+**¿Qué significa la pantalla "Estamos en mantenimiento"?** El servicio o su base de datos no están respondiendo en ese momento. No se perdió nada: tus colecciones, pruebas y ejecuciones siguen guardados, y ninguna acción quedó a medias (si no viste la confirmación, no se guardó). La pantalla se actualiza sola (un anillo muestra los segundos que faltan para el siguiente intento) y vuelve a la normalidad apenas el servicio responda; también puedes reintentar más tarde.
 
 ## 5. Seguridad: tu información protegida
 
