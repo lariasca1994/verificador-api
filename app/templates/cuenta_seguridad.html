@@ -14,7 +14,7 @@
                 <p class="text-sm text-slate-500 dark:text-slate-400">{% if clave in activos %}Activa{% if clave == preferido %} · se pide por defecto{% endif %}{% else %}Sin configurar{% endif %}</p>
             </div>
             {% if clave not in activos %}
-            <form method="post" action="/cuenta/seguridad/agregar"><button type="submit" name="metodo" value="{{ clave }}" class="bg-pg hover:bg-pg-dark text-white font-semibold rounded px-4 py-2 text-sm">Agregar</button></form>
+            <form method="post" action="/cuenta/seguridad/agregar"><button type="submit" name="metodo" value="{{ clave }}" class="boton-pg bg-pg hover:bg-pg-dark text-white font-semibold rounded px-4 py-2 text-sm">Agregar</button></form>
             {% elif clave != preferido %}
             <form method="post" action="/cuenta/seguridad/preferido"><button type="submit" name="metodo" value="{{ clave }}" class="border border-pg text-pg dark:text-pg-light font-semibold rounded px-4 py-2 text-sm">Pedir este por defecto</button></form>
             {% endif %}
@@ -38,7 +38,7 @@
             <label class="block text-sm font-medium mb-1" for="codigo">Código de 6 dígitos</label>
             <input type="text" id="codigo" name="codigo" required inputmode="numeric" pattern="[0-9 ]{6,7}" maxlength="7" autocomplete="one-time-code" class="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pg" />
         </div>
-            <button type="submit" class="bg-pg hover:bg-pg-dark text-white font-semibold rounded px-4 py-2 text-sm">Activar</button>
+            <button type="submit" class="boton-pg bg-pg hover:bg-pg-dark text-white font-semibold rounded px-4 py-2 text-sm">Activar</button>
         </form>
     </div>
     {% endif %}

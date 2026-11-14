@@ -10,6 +10,56 @@
     {{ ejecucion.total }} en total
 </p>
 
+{% set tasa = ((ejecucion.exitosas / ejecucion.total * 100) | round | int) if ejecucion.total else 0 %}
+{% set tiempos = ejecucion.resultados | selectattr("tiempo_ms") | map(attribute="tiempo_ms") | list %}
+{% set promedio = ((tiempos | sum) / (tiempos | length)) if tiempos else 0 %}
+{% set mas_lento = (tiempos | max) if tiempos else 0 %}
+{# Franja de indicadores (estilo de los tableros de referencia). #}
+<section class="franja mb-6" aria-label="Resumen de la ejecución">
+    <div class="franja-cobertura" style="--tono: {% if tasa == 100 %}var(--exito){% elif tasa >= 70 %}var(--bloqueo){% else %}var(--falla){% endif %}">
+        <div class="anillo-cobertura"{% if not tasa %} data-cero{% endif %} role="img" aria-label="Pruebas exitosas: {{ tasa }}%">
+            <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="pista" cx="50" cy="50" r="40" pathLength="100" /><circle class="avance" cx="50" cy="50" r="40" pathLength="100" style="stroke-dashoffset: {{ 100 - tasa }}; stroke: var(--tono)" /></svg>
+            <span aria-hidden="true">{{ tasa }}%</span>
+        </div>
+        <div>
+            <p class="franja-titulo">Pruebas exitosas</p>
+            <p class="franja-nota">{{ ejecucion.exitosas }} de {{ ejecucion.total }} pasaron sus aserciones</p>
+        </div>
+    </div>
+    <div style="--tono: var(--falla)">
+        <p class="franja-titulo">Fallidas</p>
+        <p class="franja-valor" data-contar>{{ ejecucion.fallidas }}</p>
+        <p class="franja-nota">por revisar</p>
+    </div>
+    <div style="--tono: var(--acento)">
+        <p class="franja-titulo">Tiempo promedio</p>
+        <p class="franja-valor" data-contar>{{ "%.0f"|format(promedio) }} ms</p>
+        <p class="franja-nota">por petición</p>
+    </div>
+    <div style="--tono: var(--bloqueo)">
+        <p class="franja-titulo">Más lenta</p>
+        <p class="franja-valor" data-contar>{{ "%.0f"|format(mas_lento) }} ms</p>
+        <p class="franja-nota">tiempo máximo</p>
+    </div>
+</section>
+
+{% if tiempos %}
+<section class="panel-tablero mb-6">
+    <h2>Tiempo de respuesta por prueba</h2>
+    <p class="texto-suave">Verde si pasó, rojo si falló; la barra más larga es la más lenta.</p>
+    <ul class="tiempos">
+        {% for r in ejecucion.resultados %}
+        <li style="--tono: {{ 'var(--exito)' if r.paso else 'var(--falla)' }}">
+            <span title="{{ r.nombre_prueba }}">{{ r.nombre_prueba }}</span>
+            <span class="pista"><i style="width: {{ ((r.tiempo_ms or 0) / mas_lento * 100) if mas_lento else 0 }}%"></i></span>
+            <b>{{ "%.0f"|format(r.tiempo_ms or 0) }} ms</b>
+        </li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+
+<h2 class="font-semibold mb-3">Detalle</h2>
 <div class="space-y-3">
     {% for r in ejecucion.resultados %}
     <div class="bg-white dark:bg-slate-900 border {% if r.paso %}border-emerald-200 dark:border-emerald-900{% else %}border-rose-200 dark:border-rose-900{% endif %} rounded-lg p-4">
