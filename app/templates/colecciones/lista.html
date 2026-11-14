@@ -3,13 +3,31 @@
 {% block contenido %}
 <div class="flex items-center justify-between mb-6">
     <h1 class="text-2xl font-bold">{% if usuario.es_admin %}Todas las colecciones{% else %}Mis colecciones{% endif %}</h1>
-    <a href="/colecciones/nueva" class="bg-pg hover:bg-pg-dark text-white text-sm font-semibold rounded px-4 py-2">+ Nueva colección</a>
+    <a href="/colecciones/nueva" class="boton-pg bg-pg hover:bg-pg-dark text-white text-sm font-semibold rounded px-4 py-2">+ Nueva colección</a>
 </div>
 
 {% if not colecciones %}
 <p class="text-slate-500 dark:text-slate-400">Todavía no hay colecciones{% if not usuario.es_admin %}. Crea la primera para empezar a definir pruebas{% endif %}.</p>
 {% else %}
-<div class="grid sm:grid-cols-2 gap-4">
+{% set total_pruebas = colecciones | map(attribute="pruebas") | map("length") | sum %}
+<section class="franja mb-6" aria-label="Resumen de colecciones">
+    <div style="--tono: var(--acento)">
+        <p class="franja-titulo">Colecciones</p>
+        <p class="franja-valor" data-contar>{{ colecciones | length }}</p>
+        <p class="franja-nota">{% if usuario.es_admin %}de todas las cuentas{% else %}tuyas{% endif %}</p>
+    </div>
+    <div style="--tono: var(--exito)">
+        <p class="franja-titulo">Pruebas definidas</p>
+        <p class="franja-valor" data-contar>{{ total_pruebas }}</p>
+        <p class="franja-nota">en total</p>
+    </div>
+    <div style="--tono: var(--bloqueo)">
+        <p class="franja-titulo">Promedio</p>
+        <p class="franja-valor">{{ "%.1f"|format(total_pruebas / (colecciones | length)) }}</p>
+        <p class="franja-nota">pruebas por colección</p>
+    </div>
+</section>
+<div class="grid sm:grid-cols-2 gap-4 colecciones-rejilla">
     {% for c in colecciones %}
     <a href="/colecciones/{{ c.id }}" class="block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-5 hover:border-pg dark:hover:border-pg transition-colors">
         <h2 class="font-semibold mb-1">{{ c.nombre }}</h2>
