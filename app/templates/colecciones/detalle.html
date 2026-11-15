@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block titulo %}{{ coleccion.nombre }} — Verificador de APIs{% endblock %}
 {% block contenido %}
-<div class="flex items-start justify-between mb-2">
-    <div>
-        <h1 class="text-2xl font-bold">{{ coleccion.nombre }}</h1>
+<div class="flex flex-wrap items-start justify-between gap-3 mb-2">
+    <div class="min-w-0">
+        <h1 class="text-2xl font-bold break-words">{{ coleccion.nombre }}</h1>
         {% if coleccion.descripcion %}<p class="text-slate-600 dark:text-slate-400 mt-1">{{ coleccion.descripcion }}</p>{% endif %}
-        {% if coleccion.url_base %}<p class="text-xs text-slate-500 dark:text-slate-500 mt-1 font-mono">{{ coleccion.url_base }}</p>{% endif %}
+        {% if coleccion.url_base %}<p class="text-xs text-slate-500 dark:text-slate-500 mt-1 font-mono break-all">{{ coleccion.url_base }}</p>{% endif %}
         {% if not es_dueno and usuario.es_admin %}<span class="inline-block mt-2 text-xs uppercase tracking-wide bg-slate-200 dark:bg-slate-800 rounded-full px-2 py-0.5">Gestionando como admin</span>{% endif %}
     </div>
     {% if es_propia %}
