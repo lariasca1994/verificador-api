@@ -24,25 +24,25 @@
 <p class="text-slate-500 dark:text-slate-400 text-sm">Sin pruebas todavía.</p>
 {% else %}
 <div class="overflow-x-auto">
-<table class="w-full text-sm border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
+<table class="w-full text-xs sm:text-sm border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
     <thead class="bg-slate-100 dark:bg-slate-800">
         <tr>
-            <th class="text-left px-3 py-2">Nombre</th>
-            <th class="text-left px-3 py-2">Método</th>
-            <th class="text-left px-3 py-2">Ruta</th>
-            <th class="text-left px-3 py-2">Estado esperado</th>
-            {% if es_propia %}<th class="px-3 py-2"></th>{% endif %}
+            <th class="text-left px-2 sm:px-3 py-2">Nombre</th>
+            <th class="text-left px-2 sm:px-3 py-2">Método</th>
+            <th class="text-left px-2 sm:px-3 py-2">Ruta</th>
+            <th class="text-left px-2 sm:px-3 py-2">Estado esperado</th>
+            {% if es_propia %}<th class="px-2 sm:px-3 py-2"></th>{% endif %}
         </tr>
     </thead>
     <tbody class="bg-white dark:bg-slate-900">
         {% for p in coleccion.pruebas %}
         <tr class="border-t border-slate-100 dark:border-slate-800">
-            <td class="px-3 py-2">{{ p.nombre }}</td>
-            <td class="px-3 py-2 font-mono">{{ p.metodo }}</td>
-            <td class="px-3 py-2 font-mono">{{ p.ruta }}</td>
-            <td class="px-3 py-2">{{ p.status_esperado or "—" }}</td>
+            <td class="px-2 sm:px-3 py-2">{{ p.nombre }}</td>
+            <td class="px-2 sm:px-3 py-2 font-mono">{{ p.metodo }}</td>
+            <td class="px-2 sm:px-3 py-2 font-mono break-all">{{ p.ruta }}</td>
+            <td class="px-2 sm:px-3 py-2">{{ p.status_esperado or "—" }}</td>
             {% if es_propia %}
-            <td class="px-3 py-2 text-right">
+            <td class="px-2 sm:px-3 py-2 text-right">
                 <form method="post" action="/colecciones/{{ coleccion.id }}/pruebas/{{ p.id }}/borrar">
                     <button type="submit" class="text-rose-500 hover:underline text-xs">Borrar</button>
                 </form>
