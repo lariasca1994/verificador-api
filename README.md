@@ -11,233 +11,88 @@
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 
+> 📘 **[Manual de usuario](docs/MANUAL.md)**: cómo usar cada pantalla, paso a paso y con imágenes.
+
 ## Contenido
 
 1. [Presentación](#1-presentación)
-2. [Estructura del proyecto](#2-estructura-del-proyecto)
+2. [Funcionalidades](#2-funcionalidades)
 3. [Arquitectura](#3-arquitectura)
-4. [Plataformas y su función](#4-plataformas-y-su-función)
-5. [Cómo usar la plataforma](#5-cómo-usar-la-plataforma)
-6. [Instalación para pruebas](#6-instalación-para-pruebas)
-7. [Autor y licencia](#7-autor-y-licencia)
+4. [Estructura del proyecto](#4-estructura-del-proyecto)
+5. [Instalación para pruebas](#5-instalación-para-pruebas)
+6. [Autor y licencia](#6-autor-y-licencia)
 
 ---
 
 ## 1. Presentación
 
-Herramienta de automatización de pruebas de API: define colecciones de
-verificaciones (método, URL, headers, body, status y contenido
-esperados) y ejecútalas con un clic, con historial de resultados y
-tiempos de respuesta — una versión propia y simplificada de lo que hace
+Herramienta de automatización de pruebas de API: define colecciones de verificaciones (método,
+ruta, encabezados, cuerpo, código de estado y contenido esperados) y ejecútalas con un clic, con
+historial de resultados y tiempos de respuesta. Una versión propia y simplificada de lo que hace
 Postman/Newman.
 
-### En pocas palabras
-
-- **Qué hace:** sirve para comprobar que una API funciona. Anotas qué petición
-  hacer (por ejemplo `GET /usuarios/1`) y qué esperas recibir (código 200, cierto
-  texto en la respuesta); luego ejecutas toda la colección con un clic y ves
-  qué pasó, qué falló y cuánto tardó cada una.
-- **Para qué sirve:** detectar rápido si un cambio rompió algo, y guardar un
-  historial de resultados como evidencia de pruebas.
-- **Seguridad:** verificación en dos pasos obligatoria, bloqueo temporal ante intentos fallidos
-  repetidos y registro de eventos de seguridad (ingresos, intentos fallidos, bloqueos y cambios
-  de contraseña).
+- **Qué hace:** anotas qué petición hacer (por ejemplo `GET /usuarios/1`) y qué esperas recibir
+  (código 200, cierto texto en la respuesta); luego ejecutas la colección y ves qué pasó, qué falló
+  y cuánto tardó cada una.
+- **Para qué sirve:** detectar rápido si un cambio rompió algo y guardar un historial de
+  resultados como evidencia de pruebas.
 - **Cómo probarlo:** entra a la [demo](https://eofvlnitsiuodup4eywdcenxwu0adgbz.lambda-url.us-east-1.on.aws/),
-  crea una cuenta, arma una colección y ejecútala. Para correrlo en tu equipo,
-  ve a [Instalación para pruebas](#6-instalación-para-pruebas).
+  crea una cuenta, arma una colección y ejecútala.
 
-### Demo en vivo
+## 2. Funcionalidades
 
-**Aplicación:** [abrir la demo en vivo](https://eofvlnitsiuodup4eywdcenxwu0adgbz.lambda-url.us-east-1.on.aws/)
-
----
-
-## 2. Estructura del proyecto
-
-```
-app/
-├── main.py            Arranque de FastAPI y registro de routers
-├── database.py         Conexión a PostgreSQL (Neon)
-├── models.py            Usuario, Colección, Prueba, Ejecución, ResultadoPrueba
-├── seguridad.py          Sesión y contraseñas
-├── dependencias.py        Control de acceso: cada cuenta accede a lo suyo
-├── ejecutor.py            Corre las pruebas de una colección con requests
-├── routers/               web (inicio), auth, colecciones, ejecuciones
-└── templates/             Jinja2 + Tailwind, tema claro/oscuro
-tests/                     Pruebas automáticas (pytest, SQLite, sin correos reales)
-```
-
----
+- Registro e ingreso con verificación en dos pasos obligatoria (app autenticadora o código por correo).
+- Colecciones de pruebas HTTP con método, ruta, encabezados, cuerpo y aserciones.
+- Ejecución de la colección completa con un clic, con tiempos por petición.
+- Historial de ejecuciones con el detalle de cada prueba.
+- Adaptable a celular, tablet y computador, tema claro y oscuro, e instalable como aplicación.
 
 ## 3. Arquitectura
 
 <p align="center">
-  <img src="docs/arquitectura.svg" alt="Diagrama de arquitectura: FastAPI con Mangum en AWS Lambda detrás de una Function URL, sesión JWT, SQLAlchemy hacia PostgreSQL en Neon y un ejecutor que llama a las APIs bajo prueba" width="100%">
+  <img src="docs/arquitectura.svg" alt="Diagrama de arquitectura: aplicación FastAPI, base PostgreSQL y un ejecutor que llama a las APIs bajo prueba" width="100%">
 </p>
 
-- Las páginas usan Jinja2 + Tailwind y la sesión viaja en un JWT dentro de una
-  cookie. El ingreso exige un segundo paso obligatorio: app autenticadora (TOTP,
-  clave cifrada) o código por correo (guardado solo como huella).
-- El **ejecutor** recorre la colección, llama a cada endpoint con `requests` y
-  compara el código de estado y el contenido con lo esperado.
-- **SQLAlchemy** guarda colecciones, pruebas y resultados en PostgreSQL, por TLS
-  y con `pool_pre_ping` para sobrevivir a la suspensión por inactividad.
+- Las páginas usan Jinja2 + Tailwind.
+- El **ejecutor** recorre la colección, llama a cada endpoint y compara el código de estado y el
+  contenido con lo esperado.
+- **SQLAlchemy** guarda colecciones, pruebas y resultados.
+- Se publica solo desde GitHub en cada cambio a `main`, después de pasar las pruebas automáticas.
 
-### Cómo se conecta a la base de datos
+## 4. Estructura del proyecto
 
-El proyecto usa PostgreSQL alojado en [Neon](https://neon.tech) (Postgres
-serverless). La conexión se resuelve en un solo lugar,
-`app/database.py`, a partir de la variable `DATABASE_URL` del `.env`:
-
-```python
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+```
+app/
+├── main.py         Arranque de FastAPI
+├── models.py       Colección, prueba, ejecución y resultado
+├── ejecutor.py     Corre las pruebas de una colección
+├── routers/        Páginas por sección
+├── templates/      Jinja2 + Tailwind, tema claro/oscuro
+└── static/         Estilos e íconos
+tests/              Pruebas automáticas (pytest)
+docs/               Manual de usuario y diagramas
 ```
 
-Dos detalles importan por tratarse de Neon específicamente:
+## 5. Instalación para pruebas
 
-- **La cadena de conexión ya debe traer `?sslmode=require`** al final —
-  Neon exige TLS y así te la entrega su panel (Dashboard → tu proyecto →
-  *Connection Details* → *Connection string*, variante *Pooled
-  connection*).
-- **`pool_pre_ping=True`** es necesario porque Neon
-  "suspende" el cómputo tras un rato sin actividad (scale-to-zero). Sin
-  esto, una conexión que quedó abierta antes de esa suspensión falla con
-  un error confuso a mitad de un request en vez de renovarse sola.
-
----
-
-## 4. Plataformas y su función
-
-| Plataforma | Función en el proyecto |
-|---|---|
-| ![AWS Lambda](https://img.shields.io/badge/AWS_Lambda-FF9900?style=for-the-badge&logo=awslambda&logoColor=white) | Ejecuta la app FastAPI (con Mangum) detrás de una Function URL, sin API Gateway. |
-| ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white) | PostgreSQL serverless en Neon: guarda usuarios, colecciones, pruebas, ejecuciones y resultados. Se suspende sola sin actividad. |
-| ![qa-evidencia](https://img.shields.io/badge/qa--evidencia-2EAD33?style=for-the-badge&logo=playwright&logoColor=white) | Prueba la demo automáticamente dos veces al día y publica la evidencia. |
-
----
-
-## 5. Cómo usar la plataforma
-
-### 5.1 Crear una cuenta
-
-1. En la página de inicio, pulsa **Crear cuenta**.
-2. Completa **Nombre**, **Correo** y **Contraseña**.
-3. Pulsa **Crear cuenta** y elige tu verificación en dos pasos: **App autenticadora** (escanea el
-   QR y escribe el primer código) o **Código por correo**.
-
-### 5.2 Iniciar sesión
-
-1. Pulsa **Iniciar sesión**, escribe **Correo** y **Contraseña** y pulsa **Entrar**.
-2. Escribe el código de 6 dígitos de tu app o de tu correo y pulsa **Verificar**. En **Seguridad**
-   puedes agregar el otro método y elegir cuál se pide por defecto.
-3. Llegas a **Mis colecciones**, donde solo ves tus propias colecciones.
-
-**Recuperar o cambiar la contraseña**
-
-1. En el inicio de sesión pulsa **¿Olvidaste tu contraseña?** y escribe tu correo. Si la cuenta
-   existe, llega un enlace (API de Brevo) que vence en 30 minutos y sirve una sola vez; la respuesta
-   es la misma exista o no la cuenta. El enlace solo pide la contraseña nueva y su confirmación; al
-   guardarla se cierran todas las sesiones abiertas y la verificación en dos pasos sigue activa.
-2. Con la sesión iniciada, **Contraseña** (menú superior) cambia la contraseña: pide la actual y la nueva (mínimo
-   8 caracteres). Las demás sesiones abiertas se cierran.
-
-**Perdí mi autenticador**
-
-En la pantalla del código pulsa **Perdí mi autenticador**: llega un código de 6 dígitos al correo de
-la cuenta (aunque no tengas activado el código por correo) que vence en 15 minutos. Al escribirlo,
-la plataforma pide configurar una app autenticadora nueva (código QR); la sesión se abre y la app
-anterior deja de servir solo cuando la nueva queda confirmada.
-
-### 5.3 Crear una colección
-
-1. En **Mis colecciones**, pulsa **+ Nueva colección**.
-2. Completa el formulario:
-
-   | Campo | Dato |
-   |---|---|
-   | Nombre | Nombre de la colección, por ejemplo "API de reservas-corferias" |
-   | Descripción (opcional) | Para qué sirve |
-   | URL base (opcional) | Dirección común de la API, por ejemplo `https://mi-api.onrender.com` |
-
-3. Pulsa **Crear**.
-
-### 5.4 Agregar pruebas
-
-1. Dentro de la colección, pulsa **+ Agregar prueba**.
-2. Completa el formulario:
-
-   | Campo | Dato |
-   |---|---|
-   | Nombre | Qué verifica, por ejemplo "Listar casas" |
-   | Método | GET, POST, PUT, PATCH o DELETE |
-   | Ruta o URL | Ruta relativa a la URL base (`/house`) o una URL completa |
-   | Headers (JSON, opcional) | Cabeceras de la solicitud |
-   | Body (JSON, opcional) | Cuerpo de la solicitud |
-   | Status esperado | Código HTTP esperado, por ejemplo `200` |
-   | La respuesta debe contener (opcional) | Texto que debe aparecer en la respuesta |
-
-3. Pulsa **Guardar prueba**. La tabla de **Pruebas** muestra nombre, método, ruta y
-   status esperado; **Borrar** elimina una prueba.
-
-### 5.5 Ejecutar la colección
-
-1. Pulsa **▶ Ejecutar todo**.
-2. Se abre el detalle de la ejecución: cada prueba con su resultado, su tiempo de
-   respuesta en milisegundos y, si falló, el motivo.
-3. **Ejecuciones recientes** guarda el historial de la colección como evidencia.
-
-### Si el servicio no responde
-
-Si la API o la base de datos (PostgreSQL en Neon) no responden, la aplicación muestra una **pantalla de mantenimiento** con los colores del proyecto, en lugar de un error genérico o de una página que no carga.
-
-- **Servidor:** Si Neon está suspendido, sin cuota o inalcanzable (`OperationalError`/`InterfaceError` de SQLAlchemy), cualquier página devuelve `app/templates/mantenimiento.html` con **503** y `Retry-After`. Crear las tablas al arrancar ya no tumba la Lambda si la base no responde.
-- **Pantalla:** Es una página independiente (no depende de la base ni de Tailwind por CDN) y respeta el tema guardado.
-- **Recuperación:** Se recarga sola cada 30 s; cuando la base vuelve aparece la página normal. No reintenta acciones del usuario, para no duplicarlas.
-
----
-
-## 6. Instalación para pruebas
+Requisitos: Python 3.12 y una base PostgreSQL propia.
 
 ```bash
 python -m venv .venv
-.venv\Scripts\Activate.ps1        # Windows
-source .venv/bin/activate         # Linux o macOS
-
+.venv\Scripts\Activate.ps1        # Windows (en Linux o macOS: source .venv/bin/activate)
 pip install -r requirements.txt
-cp .env.example .env
-```
-
-Completa el `.env` con tu cadena de conexión de Neon y un `JWT_SECRET`
-propio. Las tablas se crean solas al arrancar (no usa Alembic todavía).
-
-```bash
+cp .env.example .env              # completa las variables que indica la plantilla
 uvicorn app.main:app --reload --port 8300
 ```
 
-Abre `http://127.0.0.1:8300` y crea tu cuenta.
+Abre `http://127.0.0.1:8300` y crea tu cuenta. Las pruebas automáticas (`python -m pytest -q tests`)
+usan una base temporal y no envían correos. Nunca subas tu `.env` al repositorio.
 
-### Pruebas automáticas
+## 6. Autor y licencia
 
-```bash
-pip install pytest httpx
-python -m pytest -q tests
-```
+**Luis F. A.** · [GitHub](https://github.com/lariasca1994) · [LinkedIn](https://linkedin.com/in/lfac1)
 
-Usan una base SQLite temporal y no envían correos. También corren en cada despliegue: si fallan,
-no se publica nada.
-
-### Despliegue
-
-La instancia pública corre en AWS Lambda (Function URL, sin API Gateway),
-con PostgreSQL en Neon como base de datos.
-
----
-
-## 7. Autor y licencia
-
-> 📘 **[Manual de usuario](docs/MANUAL.md)**: cómo usar la plataforma campo por campo, qué datos se ingresan y qué garantiza en seguridad.
-
-**Luis F. A.**
-[GitHub](https://github.com/lariasca1994) · [LinkedIn](https://linkedin.com/in/lfac1)
+Contacto: Telegram [@lfac6](https://t.me/lfac6) · WhatsApp [@carraian160](https://wa.me/carraian160) ·
+[ariascluisf@hotmail.com](mailto:ariascluisf@hotmail.com)
 
 Licencia: MIT.

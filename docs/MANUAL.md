@@ -1,297 +1,288 @@
 # 📘 Manual de usuario · Verificador de APIs
 
-Guía para usar la plataforma paso a paso: qué significa cada campo, qué datos se ingresan y qué
-protege la plataforma. Para la parte técnica vuelve al [README](../README.md).
+## 1. Portada
 
-**Demo:** [Verificador de APIs (AWS Lambda)](https://eofvlnitsiuodup4eywdcenxwu0adgbz.lambda-url.us-east-1.on.aws/)
+![Portada del Verificador de APIs: tus endpoints, verificados](img/manual/01-portada.png)
+
+| | |
+|---|---|
+| **Producto** | Verificador de APIs |
+| **Documento** | Manual de usuario |
+| **Versión** | 2.0 · noviembre de 2026 |
+| **Dirigido a** | Analistas de pruebas, desarrolladores y equipos de soporte |
+| **Dirección** | [Verificador de APIs](https://eofvlnitsiuodup4eywdcenxwu0adgbz.lambda-url.us-east-1.on.aws/) |
+| **Autor** | Luis F. A. |
 
 ## Contenido
 
-1. [Proyecto: objetivos y alcances](#1-proyecto-objetivos-y-alcances)
-2. [Glosario](#2-glosario)
-3. [Plataformas, base de datos y servicios](#3-plataformas-base-de-datos-y-servicios)
-4. [Paso a paso](#4-paso-a-paso)
-5. [Seguridad: tu información protegida](#5-seguridad-tu-información-protegida)
-6. [Agradecimientos](#6-agradecimientos)
+1. [Portada](#1-portada)
+2. [Introducción](#2-introducción)
+3. [Objetivo](#3-objetivo)
+4. [Alcance](#4-alcance)
+5. [Acceso al sistema](#5-acceso-al-sistema)
+6. [Pantalla principal](#6-pantalla-principal)
+7. [Navegación](#7-navegación)
+8. [Funcionalidades](#8-funcionalidades)
+9. [Gestión de perfil](#9-gestión-de-perfil)
+10. [Mensajes frecuentes](#10-mensajes-frecuentes)
+11. [Preguntas frecuentes](#11-preguntas-frecuentes)
+12. [Glosario](#12-glosario)
 
 ---
 
-## 1. Proyecto: objetivos y alcances
+## 2. Introducción
 
-### Objetivo
+El **Verificador de APIs** comprueba que un servicio web responda como se espera. Las pruebas se
+agrupan en colecciones: cada prueba define una petición (método, ruta, encabezados y cuerpo) y lo
+que debe responder el servicio. Al ejecutar la colección, la plataforma compara la respuesta real
+con la esperada, mide el tiempo y guarda el resultado en el historial.
 
-Una versión propia y simplificada de Postman: anotas qué petición hacer a una API y qué esperas
-recibir, agrupas esas pruebas en **colecciones** y las ejecutas todas con un clic. Cada ejecución
-queda guardada con su resultado y su tiempo de respuesta, como evidencia de pruebas.
+Este manual explica cada pantalla, paso a paso y con imágenes.
 
-### Alcance: qué necesitas y qué esperar
+![Cómo funciona el Verificador de APIs: personas, aplicación, plataforma e información](img/manual/00-como-funciona.svg)
 
-- Solo necesitas un navegador.
-- **Las peticiones las hace el servidor**, no tu navegador: la API que pruebes tiene que estar
-  publicada en internet (una dirección `localhost` de tu equipo no funciona).
+## 3. Objetivo
 
-### Límites
+Que cualquier persona pueda, sin escribir código:
 
-Es una demo de portafolio:
+- Crear su cuenta e ingresar de forma segura.
+- Definir colecciones de pruebas sobre un servicio web.
+- Ejecutarlas con un clic y ver qué pasó, qué falló y cuánto tardó cada petición.
+- Consultar el historial de ejecuciones.
 
-- **No guardes tokens ni contraseñas reales en los headers o el body:** se almacenan sin cifrar
-  para poder repetir la petición.
-- Prueba solo APIs propias o públicas que tengas permiso de consultar: las peticiones salen desde
-  el servidor de la demo.
+## 4. Alcance
 
-## 2. Glosario
+**Incluye:** registro e ingreso con verificación en dos pasos, colecciones, pruebas con método,
+ruta, encabezados, cuerpo, código de estado esperado y texto esperado en la respuesta, ejecución de
+la colección completa e historial con tiempos.
 
-Palabras técnicas que aparecen en este manual, explicadas en lenguaje simple.
+**No incluye:** pruebas de carga, ejecuciones programadas ni pruebas sobre servicios que no sean
+accesibles desde internet.
 
-| Término | Qué significa |
-|---|---|
-| **Administrador** | Cuenta con permisos para gestionar usuarios y configuraciones de la aplicación. |
-| **API** | Puerta de entrada de un programa para que otros programas le pidan o le envíen datos. |
-| **Base de datos** | Lugar donde la aplicación guarda la información de forma ordenada y permanente. |
-| **Contraseña cifrada (hash)** | La contraseña no se guarda tal cual, sino como una "huella" de la que no se puede recuperar el texto original. |
-| **Cookie** | Pequeño dato que el navegador guarda para recordar tu sesión en ese sitio. |
-| **JWT** | Tipo de token firmado digitalmente: si alguien lo altera, el servidor lo rechaza. |
-| **Modo mantenimiento** | Pantalla que aparece cuando el servicio o su base de datos no responden; se recupera sola cuando vuelven. |
-| **Navegador** | Programa con el que abres páginas web: Chrome, Edge, Firefox, Safari. |
-| **Nube** | Servidores de una empresa (Amazon, Microsoft, Google, Oracle…) donde la aplicación funciona sin depender de un computador propio. |
-| **Rate limit (límite de intentos)** | Tope de intentos en poco tiempo, para frenar a quien intenta adivinar contraseñas. |
-| **Servidor** | Computador en la nube que atiende las peticiones de la aplicación. |
-| **Sesión** | El tiempo en que la aplicación te reconoce después de iniciar sesión, sin pedirte la contraseña de nuevo. |
-| **Token** | Credencial temporal que la aplicación te entrega al iniciar sesión, en lugar de enviar tu contraseña en cada paso. |
-| **Variables de entorno / secretos** | Claves y contraseñas internas de la aplicación, guardadas fuera del código para que no queden expuestas. |
+**Qué necesitas:** un navegador actualizado, conexión a internet, un correo propio y una app
+autenticadora en el celular (o acceso a tu correo para recibir códigos).
 
-## 3. Plataformas, base de datos y servicios
+**Buenas prácticas:** prueba servicios propios o públicos de demostración. No guardes en los
+encabezados ni en el cuerpo contraseñas, llaves de acceso ni datos personales reales.
 
-Qué servicio de nube, base de datos o API usa el proyecto y para qué sirve cada uno.
+## 5. Acceso al sistema
 
-| Plataforma | Tipo | Qué hace en el proyecto |
-|---|---|---|
-| ![AWS Lambda](https://img.shields.io/badge/AWS_Lambda-FF9900?style=for-the-badge&logo=awslambda&logoColor=white) | Nube | Ejecuta la app FastAPI (con Mangum) detrás de una Function URL, sin API Gateway. |
-| ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white) | Base de datos | PostgreSQL serverless en Neon: guarda usuarios, colecciones, pruebas, ejecuciones y resultados. Se suspende sola sin actividad. |
-| ![qa-evidencia](https://img.shields.io/badge/qa--evidencia-2EAD33?style=for-the-badge&logo=playwright&logoColor=white) | Pruebas automatizadas | Prueba la demo automáticamente dos veces al día y publica la evidencia. |
+### 5.1 Crear una cuenta
 
-## 4. Paso a paso
+En la pantalla de ingreso pulsa **Crear una**.
 
-### 4.1 Crear una cuenta
-
-![Formulario de registro](img/manual/01-registro.png)
-
-| # | Campo | Qué escribir | Reglas |
-|:-:|---|---|---|
-| 1 | Nombre | Tu nombre | Obligatorio |
-| 2 | Correo | El correo con el que vas a entrar | Formato válido y único |
-| 3 | Contraseña | Tu contraseña | Mínimo 8 caracteres; máximo 72 bytes |
-| 4 | Crear cuenta | Botón | Crea la cuenta y te lleva a elegir tu verificación en dos pasos |
-
-### 4.2 Iniciar sesión
-
-![Formulario de inicio de sesión](img/manual/02-login.png)
+![Formulario de registro con sus campos numerados](img/manual/02-registro.png)
 
 | # | Campo | Qué escribir |
 |:-:|---|---|
-| 1 | Correo | El correo de tu cuenta |
-| 2 | Contraseña | Tu contraseña |
-| 3 | Entrar | Pide el código de tu verificación en dos pasos; al escribirlo y pulsar **Verificar** se abre **Mis colecciones** |
-| 4 | ¿Olvidaste tu contraseña? | Abre la recuperación de contraseña (ver más abajo) |
+| 1 | Nombre | Tu nombre |
+| 2 | Correo | Un correo al que tengas acceso |
+| 3 | Contraseña | Mínimo 8 caracteres |
+| 4 | Crear cuenta | Crea tu cuenta y te lleva a configurar la verificación en dos pasos |
 
-Después de **Entrar** aparece la pantalla del código:
+### 5.2 Iniciar sesión
 
-![Pantalla del código de la verificación en dos pasos](img/manual/08-verificacion.png)
-
-| # | Elemento | Qué hacer |
-|:-:|---|---|
-| 1 | Código de 6 dígitos | El código que muestra tu app autenticadora (o el que te llegó al correo) |
-| 2 | Verificar | Abre **Mis colecciones** |
-| 3 | Perdí mi autenticador | Si ya no tienes la app: te envía un código al correo (ver **Perdí mi autenticador**) |
-
-El código se escribe en **seis casillas**, una por dígito: puedes teclearlo o pegarlo completo.
-Un candado sobre el título se abre al enviar el código completo y se sacude si no es válido; con la
-app autenticadora, un anillo muestra cuántos segundos faltan para que la app cambie de código.
-
-### Olvidé mi contraseña
-
-En **Iniciar sesión**, pulsa **¿Olvidaste tu contraseña?** y escribe tu correo. Si la cuenta existe y
-está activa, te llega un enlace para crear una contraseña nueva (mínimo 8 caracteres). El enlace vence
-en 30 minutos y sirve una sola vez. La pantalla muestra el mismo mensaje exista o no la cuenta.
-
-En el enlace solo escribes la **contraseña nueva** y su **confirmación**. Al guardarla:
-
-- se cierran todas las sesiones que tuvieras abiertas (en cualquier equipo);
-- tu verificación en dos pasos sigue activa: al ingresar con la contraseña nueva te pide el código
-  como siempre.
-
-### Perdí mi autenticador
-
-Si cambiaste o perdiste el teléfono con la app autenticadora:
-
-1. Inicia sesión con tu correo y contraseña.
-2. En la pantalla del código pulsa **Perdí mi autenticador** (siempre está visible).
-3. Te llega un código de 6 dígitos al correo de tu cuenta, aunque no tengas activado el código por
-   correo. Vence en 15 minutos; si no llegó, pulsa **Enviar otro código**.
-4. Escribe el código y pulsa **Verificar**.
-5. La plataforma te pide **configurar tu app autenticadora nueva**: escanea el QR y escribe el primer
-   código. Recién entonces se abre la sesión y la app anterior deja de servir; si no terminas este
-   paso, la app anterior sigue siendo la válida.
-
-### Cambiar la contraseña
-
-Con la sesión iniciada, abre **Contraseña** en el menú, escribe la actual y la nueva dos veces. Tu
-sesión actual sigue abierta y las demás se cierran.
-
-### Verificación en dos pasos (obligatoria)
-
-Cada ingreso pide, además de la contraseña, un código. La primera vez que ingresas (o al crear la
-cuenta) eliges cómo recibirlo:
-
-| Método | Cómo funciona |
-|---|---|
-| **App autenticadora** (recomendado) | Escaneas un código QR con Google Authenticator, Microsoft Authenticator u otra app; desde ese momento la app muestra un código nuevo cada 30 segundos, incluso sin internet. Si no puedes escanear, escribe la clave que aparece bajo el QR. |
-| **Código por correo** | Cada vez que ingresas te llega un código de 6 dígitos que vence en 10 minutos y sirve una sola vez. |
-
-Confirma el método escribiendo el primer código. Desde **Seguridad** (menú superior) puedes
-**agregar el método que no elegiste** y escoger cuál se pide **por defecto**; tener los dos te
-permite entrar aunque no tengas el teléfono a mano.
-
-### 4.3 Mis colecciones
-
-![Lista de colecciones](img/manual/03-colecciones.png)
+![Formulario de inicio de sesión con sus elementos numerados](img/manual/03-ingreso.png)
 
 | # | Elemento | Qué hace |
 |:-:|---|---|
-| 1 | + Nueva colección | Crea una colección de pruebas |
+| 1 | Correo | El correo de tu cuenta |
+| 2 | Contraseña | Tu contraseña |
+| 3 | Entrar | Comprueba tus datos y pasa a la verificación en dos pasos |
+| 4 | ¿Olvidaste tu contraseña? | Abre la recuperación de contraseña (5.4) |
 
-Solo ves **tus** colecciones. Arriba, una franja resume cuántas colecciones y pruebas tienes.
+Debajo, **Crear una** abre el registro (5.1).
 
-**Menú lateral.** A la izquierda está **Mis colecciones** (y **Usuarios** para el administrador);
-una luz azul marca la sección actual. Al pie están tu nombre, **Contraseña**, **Seguridad** y
-**Salir**. **Compactar menú** lo reduce a solo íconos (al pasar el cursor aparece el nombre de
-cada uno) y la preferencia se recuerda en ese equipo.
+### 5.3 Verificación en dos pasos
 
-![Menú lateral compacto con el nombre de la opción al pasar el cursor](img/manual/09-menu-compacto.png)
+Cada ingreso pide, además de la contraseña, un código de 6 dígitos. La primera vez eliges cómo
+recibirlo: con una **app autenticadora** (escaneas un código QR y la app muestra un código nuevo
+cada 30 segundos, incluso sin internet) o con un **código por correo**.
 
-**En el celular y en la tablet en vertical** el menú se convierte en una **barra inferior**
-translúcida; **Más** abre una hoja desde abajo con Contraseña y Salir.
+![Pantalla del código de verificación con sus elementos numerados](img/manual/04-verificacion.png)
 
-![Ejecución en el celular con la hoja Más abierta](img/manual/10-movil-mas.png)
+| # | Elemento | Qué hace |
+|:-:|---|---|
+| 1 | Código de 6 dígitos | El código que muestra tu app o que llegó a tu correo |
+| 2 | Verificar | Confirma el código y abre la plataforma |
+| 3 | Perdí mi autenticador | Si ya no tienes la app, te envía un código al correo de tu cuenta para configurar una app nueva |
 
-### 4.4 Crear una colección
+**Perdí mi autenticador:** pulsa el enlace, escribe el código que llega a tu correo y escanea el
+nuevo código QR con tu app. La app anterior deja de servir en ese momento.
 
-![Formulario de colección](img/manual/04-coleccion-nueva.png)
+### 5.4 Recuperar la contraseña
+
+![Pantalla para pedir el enlace de recuperación](img/manual/05-recuperar.png)
+
+| # | Elemento | Qué hace |
+|:-:|---|---|
+| 1 | Correo | El correo de tu cuenta |
+| 2 | Enviar enlace | Envía a ese correo un enlace para crear una contraseña nueva |
+
+El mensaje es el mismo exista o no la cuenta. Abre el enlace del correo (vence en poco tiempo y
+sirve una sola vez), escribe la contraseña nueva y vuelve a ingresar.
+
+## 6. Pantalla principal
+
+Al ingresar se abre **Mis colecciones**.
+
+![Mis colecciones con sus elementos numerados](img/manual/06-pantalla-principal.png)
+
+| # | Elemento | Qué hace |
+|:-:|---|---|
+| 1 | + Nueva colección | Abre el formulario para crear una colección (8.1) |
+| 2 | Tarjeta de colección | Nombre, descripción y número de pruebas; al pulsarla se abre la colección |
+
+Arriba, tres cifras resumen tu trabajo: cuántas colecciones tienes, cuántas pruebas definiste y el
+promedio de pruebas por colección.
+
+## 7. Navegación
+
+En el computador el menú está a la izquierda: **Mis colecciones** y, al pie, **Contraseña**,
+**Seguridad** y **Salir**. **Compactar menú** lo reduce a íconos y, al pasar el cursor, muestra el
+nombre de cada opción.
+
+| Menú compacto (computador) | Celular con la hoja "Más" |
+|:-:|:-:|
+| ![Menú lateral compacto](img/manual/07-navegacion.png) | ![Celular con la hoja Más abierta](img/manual/08-navegacion-movil.png) |
+
+En el celular y la tablet en vertical, el menú pasa a una barra inferior; **Más** abre una hoja con
+las opciones de la cuenta. El botón 🌙 / ☀️ cambia entre tema claro y oscuro.
+
+## 8. Funcionalidades
+
+### 8.1 Crear: colecciones y pruebas
+
+**Colección.** En Mis colecciones pulsa **+ Nueva colección**.
+
+![Formulario de colección nueva con sus campos numerados](img/manual/09-crear-coleccion.png)
 
 | # | Campo | Qué escribir |
 |:-:|---|---|
-| 1 | Nombre | Nombre de la colección, por ejemplo "API de reservas" |
-| 2 | Descripción | Opcional: para qué sirve |
-| 3 | URL base | Opcional: dirección común de la API, por ejemplo `https://mi-api.onrender.com` |
-| 4 | Crear | Guarda la colección |
+| 1 | Nombre | El nombre de la colección |
+| 2 | Descripción | Qué servicio se prueba y para qué |
+| 3 | URL base | La dirección del servicio; las rutas de las pruebas se suman a ella |
+| 4 | Crear | Crea la colección |
 
-### 4.5 Agregar una prueba
+**Prueba.** Dentro de la colección pulsa **+ Agregar prueba**.
 
-![Formulario de prueba con sus campos numerados](img/manual/05-prueba-nueva.png)
+![Formulario de prueba nueva con sus campos numerados](img/manual/10-crear-prueba.png)
 
 | # | Campo | Qué escribir |
 |:-:|---|---|
-| 1 | Nombre | Qué verifica, por ejemplo "Listar escenarios" |
+| 1 | Nombre | Qué verifica la prueba |
 | 2 | Método | GET, POST, PUT, PATCH o DELETE |
-| 3 | Ruta o URL | Ruta relativa a la URL base (`/api/escenarios`) o una URL completa |
-| 4 | Headers (JSON) | Opcional: cabeceras, por ejemplo `{"Accept": "application/json"}` |
-| 5 | Body (JSON) | Opcional: cuerpo de la petición para POST, PUT o PATCH |
-| 6 | Status esperado | Código HTTP que debe responder, por ejemplo `200` |
-| 7 | La respuesta debe contener | Opcional: texto que debe aparecer en la respuesta |
+| 3 | Ruta o URL | La ruta dentro del servicio (por ejemplo `/api/escenarios`) o una dirección completa |
+| 4 | Encabezados | Opcional, en formato JSON |
+| 5 | Cuerpo de la petición | Opcional, en formato JSON (para POST, PUT o PATCH) |
+| 6 | Código de estado esperado | El código que debe responder el servicio (por ejemplo 200 o 404) |
+| 7 | La respuesta debe contener | Opcional: un texto que debe aparecer en la respuesta |
 | 8 | Guardar prueba | Agrega la prueba a la colección |
 
-### 4.6 La colección y su historial
+### 8.2 Consultar: la colección y su historial
 
-![Detalle de una colección con sus pruebas e historial](img/manual/06-coleccion.png)
+Al abrir una colección ves sus pruebas y las ejecuciones recientes.
 
-- La tabla **Pruebas** muestra nombre, método, ruta y status esperado; **Borrar** elimina una
-  prueba.
-- **▶ Ejecutar todo** corre todas las pruebas de la colección.
-- **Ejecuciones recientes** guarda las últimas 10 ejecuciones con cuántas pasaron.
+![Detalle de una colección con sus pruebas y ejecuciones](img/manual/11-consultar.png)
 
-### 4.7 Resultado de una ejecución
+| # | Elemento | Qué muestra |
+|:-:|---|---|
+| 1 | Pruebas | Nombre, método, ruta y estado esperado de cada prueba |
+| 2 | Ejecuciones recientes | Fecha de cada ejecución y cuántas pruebas pasaron; al pulsarla se abre su reporte (8.4) |
 
-![Detalle de una ejecución](img/manual/07-ejecucion.png)
+### 8.3 Modificar: agregar, borrar y volver a ejecutar
 
-Arriba, una franja resume la ejecución: un anillo con el porcentaje de pruebas exitosas (verde si
-pasaron todas), las fallidas, el tiempo promedio por petición y el de la más lenta. Debajo, una
-barra por prueba compara los tiempos de respuesta (verde si pasó, rojo si falló).
+![Acciones para modificar una colección](img/manual/12-modificar.png)
 
-En **Detalle**, cada prueba aparece con ✅ o ❌, el código HTTP recibido y el tiempo de respuesta en
-milisegundos. Si falló, se indica el motivo (status distinto, texto ausente o error de conexión).
+| # | Elemento | Qué hace |
+|:-:|---|---|
+| 1 | + Agregar prueba | Suma una prueba nueva a la colección |
+| 2 | Borrar | Quita esa prueba de la colección |
+| 3 | ▶ Ejecutar todo | Corre todas las pruebas de la colección y guarda una ejecución nueva en el historial |
 
-### 4.8 Preguntas frecuentes
+Para cambiar una prueba, bórrala y agrégala de nuevo con los datos correctos.
 
-**¿Por qué falla con "error de conexión" si en mi navegador la API responde?** Si la API está en
-tu equipo (`localhost`) o en una red privada, el servidor de la demo no la alcanza.
+### 8.4 Reportar: resultado de una ejecución
 
-**¿Qué pasa si dejo vacío "La respuesta debe contener"?** La prueba solo compara el código HTTP.
+Al abrir una ejecución ves su reporte completo.
 
-**¿Puedo ver las ejecuciones antiguas?** La colección muestra las 10 más recientes.
+![Reporte de una ejecución con sus resultados y tiempos](img/manual/13-reportar.png)
 
-**¿Puedo instalarlo como aplicación?** Sí. En Chrome o Edge usa **Instalar aplicación** (ícono
-en la barra de direcciones o menú ⋮); en el iPhone, en Safari, **Compartir → Agregar a inicio**. Se
-abre en su propia ventana y entra directo a tus colecciones.
+| Bloque | Qué muestra |
+|---|---|
+| Pruebas exitosas | Porcentaje y número de pruebas que cumplieron todo lo esperado |
+| Fallidas | Pruebas por revisar |
+| Tiempo promedio / Más lenta | Cuánto tardaron las peticiones |
+| Tiempo de respuesta por prueba | Una barra por prueba: verde si pasó, roja si falló; la más larga es la más lenta |
+| Detalle | Cada prueba con su resultado, el código obtenido y el tiempo |
 
-**¿Qué pasa si me quedo sin internet?** Aparece la pantalla **Sin conexión**, que reintenta sola
-cada pocos segundos (o con **Reintentar ahora**) y vuelve a la página cuando hay red.
+## 9. Gestión de perfil
 
-![Pantalla sin conexión con reintento automático](img/manual/12-sin-conexion.png)
+### 9.1 Cambiar contraseña
 
-**Abrí un enlace y dice "Esta ruta no responde 200".** La dirección no existe (un enlace viejo o
-una colección que ya no está). Usa **Ver colecciones** o **Volver al inicio**; si tenías la sesión
-abierta, sigue abierta.
+![Formulario de cambio de contraseña con sus campos numerados](img/manual/14-contrasena.png)
 
-![Página no encontrada](img/manual/11-no-encontrada.png)
+| # | Campo | Qué escribir |
+|:-:|---|---|
+| 1 | Contraseña actual | Tu contraseña de hoy |
+| 2 | Nueva contraseña | Mínimo 8 caracteres |
+| 3 | Confirma la nueva contraseña | La misma contraseña nueva |
+| 4 | Guardar contraseña | Guarda el cambio; se cierran tus otras sesiones |
 
-**¿Qué significa la pantalla "Estamos en mantenimiento"?** El servicio o su base de datos no están respondiendo en ese momento. No se perdió nada: tus colecciones, pruebas y ejecuciones siguen guardados, y ninguna acción quedó a medias (si no viste la confirmación, no se guardó). La pantalla se actualiza sola (un anillo muestra los segundos que faltan para el siguiente intento) y vuelve a la normalidad apenas el servicio responda; también puedes reintentar más tarde.
+### 9.2 Seguridad
 
-## 5. Seguridad: tu información protegida
+![Pantalla de seguridad con los métodos de verificación](img/manual/15-seguridad.png)
 
-Tu confianza es lo primero: la plataforma solo pide los datos necesarios para funcionar, los protege y no los comparte con terceros. Esto es lo que se guarda y cómo se protege.
+| Método | Qué puedes hacer |
+|---|---|
+| App autenticadora | Ver si está activa y si es el método que se pide por defecto |
+| Código por correo | **Agregar** el método que te falta o **Pedir este por defecto** |
 
-### Qué datos se guardan y dónde
+Tener los dos métodos activos te permite entrar aunque no tengas el celular a mano.
 
-| Dato | Para qué se usa | Dónde se guarda | Quién lo ve |
-|---|---|---|---|
-| Nombre y correo | Identificar tu cuenta | PostgreSQL (Neon) | Tú y el administrador |
-| Contraseña | Iniciar sesión | PostgreSQL, **solo su huella** | Nadie: no se puede leer ni recuperar |
-| Colecciones y pruebas (URL, headers, body) | Ejecutar las verificaciones | PostgreSQL, **tal cual las escribes** | Tú y el administrador (solo lectura) |
-| Resultados de ejecución | Historial y evidencia | PostgreSQL | Tú y el administrador |
-| Verificación en dos pasos | Confirmar que eres tú al ingresar | PostgreSQL (Neon): clave de la app **cifrada** y código del correo **solo como huella** | Nadie: no se puede leer desde la base |
-| Sesión | Mantenerte conectado | Cookie en tu navegador | Firmada, invisible para JavaScript; vence sola |
+## 10. Mensajes frecuentes
 
-### Cómo se protege tu información
+| Mensaje | Qué significa | Qué hacer |
+|---|---|---|
+| Correo o contraseña incorrectos | Los datos no coinciden | Revísalos o usa **¿Olvidaste tu contraseña?** |
+| Ese correo ya está registrado | Ya existe una cuenta con ese correo | Ingresa con él o recupera la contraseña |
+| El código no es correcto o ya venció. | El código escrito no es el vigente | Escribe el código que muestra ahora la app |
+| Pediste varios códigos seguidos. Espera unos minutos. | Se pidieron muchos códigos en poco tiempo | Espera unos minutos y vuelve a pedirlo |
+| Tu contraseña quedó actualizada. Se cerraron tus otras sesiones. | El cambio quedó guardado | Usa la contraseña nueva en tus otros equipos |
+| Esta cuenta está suspendida | La cuenta no está habilitada | Escribe a soporte (ver 11) |
+| Página no encontrada | La dirección que abriste no existe | Vuelve con el menú |
+| Sin conexión | Tu equipo no tiene internet | La pantalla reintenta sola |
 
-Comprobado en el código del proyecto (`app/seguridad.py`, `app/dependencias.py`,
-`app/routers/`):
+| Página no encontrada | Sin conexión |
+|:-:|:-:|
+| ![Página no encontrada](img/manual/16-no-encontrada.png) | ![Pantalla sin conexión](img/manual/17-sin-conexion.png) |
 
-- **Contraseñas protegidas.** Solo se guarda la huella.
-- **Verificación en dos pasos obligatoria** con app autenticadora (TOTP) o código por correo:
-  la clave de la app se guarda cifrada, un código no se acepta dos veces, los intentos errados
-  bloquean temporalmente y el código del correo vence en pocos minutos.
-- **Sesión en una cookie segura** que vence sola. Una cuenta
-  suspendida por el administrador pierde el acceso de inmediato.
-- **Cada colección es de su dueño:** nadie más puede verla, ejecutarla ni editarla. El
-  administrador puede mirarla, pero no modificar ni ejecutar nada ajeno.
-- **Tiempo máximo por petición:** cada prueba se corta a los 15 segundos, para que una API lenta no
-  bloquee la ejecución.
-- **Consultas a la base con ORM** (SQLAlchemy), sin concatenar texto del usuario en el SQL.
-- **Plantillas con escape automático** (Jinja2): las respuestas de las APIs probadas se muestran
-  como texto, no como código.
-- **Secretos fuera del repositorio:** conexión a PostgreSQL y clave JWT en variables de entorno de
-  AWS Lambda.
-- **Bloqueo temporal** ante intentos fallidos repetidos de contraseña o de código.
-- **Cambiar o restablecer la contraseña cierra las sesiones abiertas** con la contraseña anterior.
-- **Recuperación del autenticador por correo:** el código llega solo al correo de la cuenta, después
-  de la contraseña; la app anterior se reemplaza únicamente cuando la nueva queda confirmada.
-- **Registro de eventos de seguridad:** ingresos, intentos fallidos, bloqueos, recuperaciones y
-  cambios de contraseña quedan registrados (nunca contraseñas ni códigos) y se depuran solos.
-- **Al día en seguridad:** el runtime, el sistema y las dependencias se mantienen con los últimos
-  parches y se revisan periódicamente.
+## 11. Preguntas frecuentes
 
-## 6. Agradecimientos
+**¿Por qué una prueba falla si el servicio funciona?** Revisa el código de estado esperado y el
+texto que debe contener la respuesta: deben coincidir exactamente con lo que devuelve el servicio.
 
-A mi familia, por su apoyo incondicional, su paciencia y por creer en cada proyecto incluso cuando apenas era una idea. Este trabajo también es de ustedes.
+**¿Por qué la primera ejecución tarda más?** Si el servicio probado se suspende sin uso, la primera
+petición lo reactiva; las siguientes son más rápidas.
 
-Y a ti, que usas esta plataforma: cada prueba, comentario y sugerencia ayuda a que siga mejorando.
+**¿Otra persona puede ver mis colecciones?** No. Cada cuenta ve las suyas.
+
+**¿Se puede instalar como aplicación?** Sí: en Chrome o Edge, **Instalar aplicación**; en iPhone,
+Safari → **Compartir → Agregar a inicio**.
+
+**¿Dónde pido ayuda o reporto un problema?** Telegram [@lfac6](https://t.me/lfac6), WhatsApp
+[@carraian160](https://wa.me/carraian160) o [ariascluisf@hotmail.com](mailto:ariascluisf@hotmail.com).
+
+## 12. Glosario
+
+| Término | Qué significa |
+|---|---|
+| **API** | Servicio al que otros programas le piden o le envían datos |
+| **App autenticadora** | Aplicación del celular que muestra un código nuevo cada 30 segundos para confirmar que eres tú |
+| **Código de estado** | Número con el que el servicio indica cómo le fue a la petición (200 = correcto, 404 = no existe) |
+| **Colección** | Un grupo de pruebas sobre el mismo servicio |
+| **Cuerpo de la petición** | Los datos que se envían al servicio, por ejemplo en una creación |
+| **Encabezados** | Información adicional que acompaña a la petición |
+| **Ejecución** | Cada vez que se corren todas las pruebas de una colección |
+| **Método** | El tipo de petición: GET consulta, POST crea, PUT/PATCH actualiza, DELETE borra |
+| **Verificación en dos pasos** | Además de la contraseña, se pide un código que solo tú puedes recibir |
