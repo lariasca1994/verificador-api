@@ -66,7 +66,7 @@
         <div class="flex items-center justify-between">
             <span class="font-medium">{{ "✅" if r.paso else "❌" }} {{ r.nombre_prueba }}</span>
             <span class="text-xs text-slate-500 dark:text-slate-500">
-                {% if r.status_obtenido %}status {{ r.status_obtenido }} · {% endif %}
+                {% if r.status_obtenido %}código {{ r.status_obtenido }} · {% endif %}
                 {% if r.tiempo_ms %}{{ "%.0f"|format(r.tiempo_ms) }} ms{% endif %}
             </span>
         </div>
